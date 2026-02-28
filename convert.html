@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Excelデータ変換くん</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border: 1px solid #ddd;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Excelデータ貼り付けエリア</h2>
+    <p>ExcelのA列〜G列をガバっとコピーして、ここに貼り付けてください。</p>
+    <textarea id="inputData" placeholder="ここに貼り付け..."></textarea>
+    <button onclick="convert()">コードに変換する</button>
+
+    <h2>生成されたコード</h2>
+    <p>これを main.js などの先頭にコピペしてください。</p>
+    <textarea id="outputData"></textarea>
+
+    <script>
+        function convert() {
+            const rawText = document.getElementById('inputData').value;
+            const lines = rawText.split('\n');
+
+            let result = [];
+            let currentGenre = { genre: "未分類", questions: [] };
+            let questionBuffer = [];
+
+            // ジャンル名のマッピング（もしExcelにジャンル行が含まれていない場合用）
+            // 行の塊ごとに自動でジャンルを切り替えるロジック
+            let genreCounter = 1;
+
+            lines.forEach((line, index) => {
+                // タブで区切る
+                const cols = line.split('\t');
+
+                // 空行や、列が足りない行はスキップ（ジャンルの区切りとみなす）
+                if (cols.length < 5 || !cols[1]) {
+                    if (questionBuffer.length > 0) {
+                        // 前のジャンルを確定
+                        currentGenre.questions = questionBuffer;
+                        result.push(currentGenre);
+
+                        // 次のジャンル準備
+                        questionBuffer = [];
+                        currentGenre = { genre: `ジャンル${genreCounter + 1}`, questions: [] };
+                        genreCounter++;
+                    }
+                    return;
+                }
+
+                // ヘッダー行っぽいもの（"問題文"などの文字が入っている）はスキップ
+                if (cols[1].includes("問題文")) return;
+
+                // データ作成
+                // A列:番号, B:問題, C:選1, D:選2(正解), E:選3, F:選4, G:解説
+                const q = {
+                    id: cols[0].trim(),
+                    text: cols[1].trim(),
+                    options: [
+                        cols[2].trim(), // 選択肢1
+                        cols[3].trim(), // 選択肢2 (正解)
+                        cols[4].trim(), // 選択肢3
+                        cols[5].trim()  // 選択肢4
+                    ],
+                    correctAnswer: cols[3].trim(), // D列が正解と指定あり
+                    explanation: cols[6] ? cols[6].trim() : "解説なし"
+                };
+                questionBuffer.push(q);
+            });
+
+            // 最後のバッファを処理
+            if (questionBuffer.length > 0) {
+                currentGenre.questions = questionBuffer;
+                result.push(currentGenre);
+            }
+
+            // JSON文字列に変換して表示
+            const jsonStr = JSON.stringify(result, null, 2);
+            const finalCode = `const quizData = ${jsonStr};`;
+
+            document.getElementById('outputData').value = finalCode;
+        }
+    </script>
+</body>
+
+</html>
