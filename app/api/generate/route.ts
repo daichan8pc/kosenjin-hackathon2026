@@ -1,33 +1,35 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
-// 環境変数からAPIキーを読み込み
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-
 export async function POST(req: Request) {
     try {
-        // フロントエンドから送られてくるデータを受け取る
-        // prompt: AIへの命令文
-        // image: 画像データ（Base64形式、オプション）
-        const { prompt, image } = await req.json();
+        // 1. デバッグ：APIキーが読めているかサーバーのコンソールに出す
+        const apiKey = process.env.GEMINI_API_KEY;
+        console.log("---------------------------------------------------");
+        console.log("🔑 API Key Check:", apiKey ? `Loaded (Starts with ${apiKey.substring(0, 4)}...)` : "❌ NOT FOUND");
+        console.log("---------------------------------------------------");
 
-        // モデル選択（高速な Flash モデルを使用）
+        if (!apiKey) {
+            return NextResponse.json({ error: "API Key is missing in server env" }, { status: 500 });
+        }
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        const { prompt, image } = await req.json();
 
         let result;
         if (image) {
-            // 画像がある場合（Base64ヘッダーを除去して渡す）
             const cleanBase64 = image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
             const imagePart = {
                 inlineData: {
                     data: cleanBase64,
-                    mimeType: "image/png", // 送信元でpngとして処理推奨
+                    mimeType: "image/png",
                 },
             };
-            // テキスト + 画像 で生成
             result = await model.generateContent([prompt, imagePart]);
         } else {
-            // テキストのみで生成
             result = await model.generateContent(prompt);
         }
 
@@ -36,8 +38,11 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ result: text });
 
-    } catch (error) {
-        console.error("AI API Error:", error);
-        return NextResponse.json({ error: "Failed to generate content" }, { status: 500 });
+    } catch (error: any) {
+        console.error("❌ AI Error Details:", error);
+        return NextResponse.json({
+            error: error.message || "AI processing failed",
+            details: error.toString()
+        }, { status: 500 });
     }
 }
