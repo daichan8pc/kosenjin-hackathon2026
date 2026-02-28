@@ -1,0 +1,2871 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>恋愛技術者試験 - Team 404</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Kurenaido&display=swap" rel="stylesheet">
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+    <style>
+        /* --- デザイン設定 (Team 404仕様 & PDF完全再現) --- */
+        :root {
+            --bg-color: #AD2F4D;
+            --text-color: #fff;
+            --font-main: "Zen Kurenaido", sans-serif;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: transparent;
+        }
+
+        .screen {
+            display: none;
+            padding: 20px;
+            flex: 1;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .active {
+            display: flex;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 40px;
+            letter-spacing: 5px;
+            font-weight: normal;
+            color: white;
+        }
+
+        /* --- 1. スタート画面 --- */
+        label {
+            color: white;
+            width: 100%;
+            max-width: 500px;
+            text-align: left;
+            margin-bottom: 5px;
+            font-size: 1.3rem;
+            display: block;
+        }
+
+        input,
+        select {
+            width: 100%;
+            max-width: 500px;
+            padding: 15px;
+            margin-bottom: 25px;
+            border: none;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-family: var(--font-main);
+            font-size: 1.2rem;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .btn-start {
+            width: 100%;
+            max-width: 300px;
+            padding: 15px;
+            margin-top: 30px;
+            background: white;
+            color: var(--bg-color);
+            border: none;
+            border-radius: 50px;
+            font-family: var(--font-main);
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-start:active {
+            transform: scale(0.98);
+        }
+
+        /* --- 2. クイズ出題画面 --- */
+        .quiz-header {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .q-number {
+            font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .question-text {
+            font-size: 2rem;
+            line-height: 1.5;
+            margin-bottom: 50px;
+            color: #fff;
+            text-align: center;
+            width: 90%;
+        }
+
+        .options-area {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .option-btn {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 15px 30px;
+            margin: 20px 0;
+            background: white;
+            border: none;
+            border-radius: 50px;
+            text-align: left;
+            cursor: pointer;
+            color: #333;
+            font-family: var(--font-main);
+            font-size: 1.3rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.1s;
+        }
+
+        .option-btn:hover {
+            transform: scale(1.02);
+        }
+
+        .opt-num-text {
+            color: var(--bg-color);
+            font-weight: bold;
+            font-size: 1.3rem;
+            margin-right: 25px;
+            margin-left: 5px;
+        }
+
+        /* --- 3. 正解・不正解画面 --- */
+        .feedback-container {
+            width: 100%;
+            max-width: 600px;
+            background: transparent;
+            color: white;
+            text-align: center;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        .fb-header {
+            text-align: center;
+            margin-bottom: 40px;
+            border: none;
+        }
+
+        .fb-q-num-text {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            display: block;
+            font-weight: normal;
+        }
+
+        .fb-status {
+            font-size: 4rem;
+            display: block;
+            margin: 0;
+            font-weight: normal;
+            letter-spacing: 5px;
+        }
+
+        .status-correct {
+            color: white;
+        }
+
+        .status-wrong {
+            color: white;
+        }
+
+        .fb-section {
+            margin-bottom: 30px;
+            text-align: center;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .fb-label {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .fb-content-box {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            box-sizing: border-box;
+            text-align: left;
+            font-family: var(--font-main);
+        }
+
+        .style-user-answer {
+            background: white;
+            color: #333;
+            border: none;
+        }
+
+        .style-user-answer .fb-num {
+            color: var(--bg-color);
+            font-weight: bold;
+            margin-right: 20px;
+        }
+
+        .style-correct-answer {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .style-correct-answer .fb-num {
+            color: white;
+            font-weight: bold;
+            margin-right: 20px;
+        }
+
+        .fb-exp-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: white;
+            margin-top: 5px;
+            width: 90%;
+        }
+
+        .next-btn {
+            display: block;
+            width: 200px;
+            margin: 40px auto 0;
+            background: white;
+            color: var(--bg-color);
+            border: none;
+            padding: 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.3rem;
+            font-family: var(--font-main);
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .next-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* --- 4. 結果画面 (ズレ修正版) --- */
+        .result-title {
+            font-size: 4rem;
+            color: #fff;
+            margin-bottom: 10px;
+            font-weight: normal;
+        }
+
+        .result-sub {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 30px;
+        }
+
+        /* 点数エリア：Flexboxでベースラインを揃える */
+        .result-score-box {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .score-highlight {
+            font-size: 6rem;
+            /* 数字を巨大化 */
+            font-weight: bold;
+            margin: 0 10px;
+            line-height: 1;
+        }
+
+        /* ランクエリア：Flexboxでベースラインを揃える */
+        .rank-label {
+            font-size: 1.2rem;
+            margin-bottom: 0px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .rank-main-box {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .rank-big {
+            font-size: 8rem;
+            /* ランクを巨大化 */
+            font-weight: bold;
+            color: #fff;
+            line-height: 1;
+            margin-right: 10px;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .rank-suffix {
+            font-size: 2rem;
+            color: white;
+        }
+
+        /* ランク表：余白調整 */
+        .rank-table {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto 30px auto;
+            border-collapse: collapse;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            color: white;
+            overflow: hidden;
+            /* 角丸を有効に */
+        }
+
+        .rank-table td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 20px;
+            vertical-align: middle;
+        }
+
+        .rank-table td:last-child {
+            text-align: right;
+            letter-spacing: 1px;
+        }
+
+        .rank-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* 一番下は線なし */
+        .rank-table tr.active-rank {
+            background: white;
+            color: var(--bg-color);
+            font-weight: bold;
+        }
+
+        .btn-issue {
+            background: white;
+            color: var(--bg-color);
+            border: none;
+            padding: 15px 60px;
+            border-radius: 50px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            font-family: var(--font-main);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 裏方 */
+        #hidden-license-area {
+            position: fixed;
+            top: 0;
+            left: -9999px;
+        }
+
+        .license-card {
+            width: 374px;
+            height: 237px;
+            background: #fff;
+            border: 2px solid #333;
+            position: relative;
+            font-family: "MS Mincho", serif;
+            color: #333;
+        }
+
+        .lic-left {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 68%;
+            height: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .lic-title {
+            font-size: 18px;
+            font-weight: bold;
+            border-bottom: 2px solid var(--bg-color);
+            margin-bottom: 5px;
+            text-align: center;
+            color: var(--bg-color);
+            font-family: var(--font-main);
+        }
+
+        .lic-row {
+            display: flex;
+            margin-bottom: 4px;
+            align-items: baseline;
+            font-size: 11px;
+        }
+
+        .lic-label {
+            font-weight: bold;
+            width: 50px;
+            color: #555;
+        }
+
+        .lic-val {
+            font-weight: bold;
+            flex: 1;
+        }
+
+        .lic-rank-area {
+            background-color: #981C58;
+            color: white;
+            padding: 3px 5px;
+            border-radius: 4px;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .lic-rank-val {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .lic-feedback {
+            margin-top: 5px;
+            font-size: 9px;
+            border: 1px dashed #999;
+            padding: 3px;
+            background: #f9f9f9;
+            height: 35px;
+            overflow: hidden;
+        }
+
+        .lic-meta {
+            margin-top: 5px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 9px;
+        }
+
+        .lic-right {
+            position: absolute;
+            top: 40px;
+            right: 10px;
+            width: 30%;
+            height: 110px;
+            background-color: #FFBEDC;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .lic-photo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .lic-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--bg-color);
+            color: white;
+            text-align: center;
+            font-size: 10px;
+            padding: 4px 0;
+            font-family: var(--font-main);
+            letter-spacing: 1px;
+        }
+
+        .stamp {
+            position: absolute;
+            bottom: 35px;
+            right: 15px;
+            border: 3px solid #d00;
+            color: #d00;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 5px;
+            transform: rotate(-20deg);
+            opacity: 0.7;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="screen-start" class="container screen active">
+        <h1>恋愛技術者試験</h1>
+
+        <label>名前</label>
+        <input type="text" id="user-name" placeholder="例：高専 太郎">
+
+        <label>高専</label>
+        <select id="user-kosen">
+            <option value="" disabled selected>選択してください</option>
+            <optgroup label="北海道地方">
+                <option value="函館高専">函館高専</option>
+                <option value="苫小牧高専">苫小牧高専</option>
+                <option value="釧路高専">釧路高専</option>
+                <option value="旭川高専">旭川高専</option>
+            </optgroup>
+            <optgroup label="東北地方">
+                <option value="八戸高専">八戸高専</option>
+                <option value="一関高専">一関高専</option>
+                <option value="仙台高専">仙台高専</option>
+                <option value="秋田高専">秋田高専</option>
+                <option value="鶴岡高専">鶴岡高専</option>
+                <option value="福島高専">福島高専</option>
+            </optgroup>
+            <optgroup label="関東甲信越地方">
+                <option value="茨城高専">茨城高専</option>
+                <option value="小山高専">小山高専</option>
+                <option value="群馬高専">群馬高専</option>
+                <option value="木更津高専">木更津高専</option>
+                <option value="東京高専">東京高専</option>
+                <option value="長野高専">長野高専</option>
+                <option value="都立産技高専">都立産技高専</option>
+                <option value="サレジオ高専">サレジオ高専</option>
+            </optgroup>
+            <optgroup label="東海北陸地方">
+                <option value="富山高専">富山高専</option>
+                <option value="石川高専">石川高専</option>
+                <option value="福井高専">福井高専</option>
+                <option value="岐阜高専">岐阜高専</option>
+                <option value="沼津高専">沼津高専</option>
+                <option value="豊田高専">豊田高専</option>
+                <option value="鳥羽商船高専">鳥羽商船高専</option>
+                <option value="鈴鹿高専">鈴鹿高専</option>
+                <option value="国際高専">国際高専</option>
+            </optgroup>
+            <optgroup label="近畿地方">
+                <option value="舞鶴高専">舞鶴高専</option>
+                <option value="明石高専">明石高専</option>
+                <option value="奈良高専">奈良高専</option>
+                <option value="和歌山高専">和歌山高専</option>
+                <option value="大阪公大高専">大阪公大高専</option>
+                <option value="神戸高専">神戸高専</option>
+                <option value="近大高専">近大高専</option>
+            </optgroup>
+            <optgroup label="中国地方">
+                <option value="米子高専">米子高専</option>
+                <option value="松江高専">松江高専</option>
+                <option value="津山高専">津山高専</option>
+                <option value="広島商船高専">広島商船高専</option>
+                <option value="呉高専">呉高専</option>
+                <option value="徳山高専">徳山高専</option>
+                <option value="宇部高専">宇部高専</option>
+                <option value="大島商船高専">大島商船高専</option>
+            </optgroup>
+            <optgroup label="四国地方">
+                <option value="阿南高専">阿南高専</option>
+                <option value="香川高専">香川高専</option>
+                <option value="新居浜高専">新居浜高専</option>
+                <option value="弓削商船高専">弓削商船高専</option>
+                <option value="高知高専">高知高専</option>
+                <option value="神山まるごと高専">神山まるごと高専</option>
+            </optgroup>
+            <optgroup label="九州・沖縄地方">
+                <option value="久留米高専">久留米高専</option>
+                <option value="有明高専">有明高専</option>
+                <option value="北九州高専">北九州高専</option>
+                <option value="佐世保高専">佐世保高専</option>
+                <option value="熊本高専">熊本高専</option>
+                <option value="大分高専">大分高専</option>
+                <option value="都城高専">都城高専</option>
+                <option value="鹿児島高専">鹿児島高専</option>
+                <option value="沖縄高専">沖縄高専</option>
+            </optgroup>
+            <optgroup label="その他">
+                <option value="モンゴル高専">モンゴル高専</option>
+                <option value="タイ高専 KOSEN-KMITL">タイ高専 KOSEN-KMITL</option>
+                <option value="タイ高専 KOSEN KMUTT">タイ高専 KOSEN KMUTT</option>
+                <option value="滋賀県立高専">滋賀県立高専</option>
+                <option value="その他">その他</option>
+            </optgroup>
+        </select>
+
+        <label>入学年度</label>
+        <select id="user-year">
+            <option value="" disabled selected>選択してください</option>
+            <option value="2026">2026年</option>
+            <option value="2025">2025年</option>
+            <option value="2024">2024年</option>
+            <option value="2023">2023年</option>
+            <option value="2022">2022年</option>
+            <option value="2021">2021年</option>
+            <option value="2020">2020年</option>
+            <option value="2019">2019年</option>
+            <option value="2018">2018年</option>
+            <option value="2017">2017年</option>
+            <option value="2016">2016年</option>
+            <option value="2015">2015年</option>
+            <option value="2014">2014年</option>
+            <option value="2013">2013年</option>
+            <option value="2012">2012年</option>
+            <option value="2011">2011年</option>
+            <option value="2010">2010年</option>
+            <option value="2000s">2000年代</option>
+            <option value="1990s">1990年代</option>
+            <option value="1980s">1980年代</option>
+            <option value="1970s">1970年代</option>
+            <option value="1960s">1960年代</option>
+            <option value="1950s">1950年代</option>
+            <option value="1940s">1940年代</option>
+            <option value="1930s">1930年代</option>
+            <option value="1920s">1920年代</option>
+            <option value="1910s">1910年代</option>
+            <option value="1900s">1900年代</option>
+            <option value="ancestor">それ以前</option>
+        </select>
+
+        <label>顔写真（任意）</label>
+        <input type="file" id="user-photo" accept="image/*">
+
+        <div style="margin:10px 0; color:rgba(255,255,255,0.8);">
+            <label style="display:flex; align-items:center;">
+                <input type="checkbox" id="demo-mode" checked style="width:20px; margin-right:10px;">
+                デモモード（ランダム10問）
+            </label>
+        </div>
+        <button class="btn-start" onclick="app.startQuiz()">試験開始</button>
+    </div>
+
+    <div id="screen-quiz" class="container screen">
+        <div class="quiz-header">
+            <div class="q-number">第 <span id="q-current">1</span> 問</div>
+        </div>
+
+        <div id="q-text" class="question-text">読み込み中...</div>
+
+        <div class="options-area" id="options-area"></div>
+    </div>
+
+    <div id="screen-feedback" class="container screen">
+        <div class="feedback-container">
+            <div class="fb-header">
+                <span class="fb-q-num-text">第 <span id="fb-q-num">1</span> 問</span>
+                <div id="fb-status" class="fb-status">正解</div>
+            </div>
+
+            <div class="fb-section">
+                <span class="fb-label">あなたの答え</span>
+                <div id="fb-user-text"></div>
+            </div>
+
+            <div class="fb-section">
+                <span class="fb-label">正しい答え</span>
+                <div id="fb-correct-text"></div>
+            </div>
+
+            <div class="fb-section">
+                <span class="fb-label">解説</span>
+                <div class="fb-exp-text" id="fb-explanation"></div>
+            </div>
+
+            <button class="next-btn" onclick="app.nextQuestion()">次へ</button>
+        </div>
+    </div>
+
+    <div id="screen-result" class="container screen">
+        <h2 class="result-title">結果</h2>
+        <div class="result-sub">
+            <span id="res-total">10</span>問中...
+        </div>
+
+        <div class="result-score-box">
+            <span id="res-score" class="score-highlight">0</span>
+            <span style="font-size:1.5rem;">問正解</span>
+        </div>
+
+        <div class="rank-label">あなたの恋愛評定は...</div>
+        <div class="rank-main-box">
+            <span id="res-rank" class="rank-big">D</span>
+            <span class="rank-suffix">ランク</span>
+        </div>
+
+        <div id="res-msg-txt" style="font-size:1.5rem; font-weight:bold; margin-bottom:20px; color:white;">
+        </div>
+
+        <table class="rank-table">
+            <tr id="row-s">
+                <td>Sランク</td>
+                <td>100 ~ 90%</td>
+            </tr>
+            <tr id="row-a">
+                <td>Aランク</td>
+                <td>89 ~ 80%</td>
+            </tr>
+            <tr id="row-b">
+                <td>Bランク</td>
+                <td>79 ~ 70%</td>
+            </tr>
+            <tr id="row-c">
+                <td>Cランク</td>
+                <td>69 ~ 60%</td>
+            </tr>
+            <tr id="row-d">
+                <td>Dランク</td>
+                <td>59 ~ 0%</td>
+            </tr>
+        </table>
+
+        <button id="btn-issue" class="btn-issue" onclick="app.downloadLicense()">免許証を発行</button>
+
+        <button class="next-btn" onclick="location.reload()"
+            style="background:transparent; border:1px solid rgba(255,255,255,0.5); color:white; margin-top:20px; font-size:1rem; padding:10px 30px;">トップに戻る</button>
+    </div>
+
+    <script>
+        const rawQuizData = [
+            {
+                "genre": "未分類",
+                "questions": [
+                    {
+                        "id": "問題1",
+                        "text": "デート当日、鼻毛が1本出ていることに気づいた。どうする？",
+                        "options": [
+                            "「まあ、誤差の範囲内だろ」と放置",
+                            "コンビニでカッターを買って即座に処理",
+                            "「これ、センサーのアンテナなんだ」とボケる",
+                            "相手に「俺の鼻毛どう思う？」と聞く"
+                        ],
+                        "correctAnswer": "コンビニでカッターを買って即座に処理",
+                        "explanation": "身だしなみのデバッグは必須。誤差じゃない、致命的なバグだ。顔というUIを整えてから臨め。"
+                    },
+                    {
+                        "id": "問題2",
+                        "text": "3年以上着ている首元がヨレた高専Tシャツでデートに行ってもいい？",
+                        "options": [
+                            "機能性に問題ないのでOK",
+                            "部屋着としてならOKだがデートは絶対NG",
+                            "「ビンテージものだ」と言い張る",
+                            "相手にもお揃いの高専Tシャツを渡す"
+                        ],
+                        "correctAnswer": "部屋着としてならOKだがデートは絶対NG",
+                        "explanation": "ヨレヨレの服は「相手への敬意の欠如」だ。新品の標準ライブラリ（服）を導入しろ。"
+                    },
+                    {
+                        "id": "問題3",
+                        "text": "爪の長さについて、どう意識すべき？",
+                        "options": [
+                            "キーボードが打ちやすい長さならOK",
+                            "白い部分が見えない程度に短く整える",
+                            "1本だけ長くして精密作業用に残す",
+                            "相手の爪の硬さをモース硬度で測定する"
+                        ],
+                        "correctAnswer": "白い部分が見えない程度に短く整える",
+                        "explanation": "長い爪は不潔感の象徴。相手の肌に触れる可能性があるなら、平滑化まで徹底しろ。"
+                    },
+                    {
+                        "id": "問題4",
+                        "text": "デート中の靴はどうあるべき？",
+                        "options": [
+                            "泥だらけだが歩行性能に支障がない",
+                            "汚れがなく、手入れされている",
+                            "かかとがすり減って重心移動しやすい",
+                            "「裸足の方が生物学的に効率的だ」と靴を履かない"
+                        ],
+                        "correctAnswer": "汚れがなく、手入れされている",
+                        "explanation": "足元は意外と見られている。ハードのメンテを怠るエンジニアが信頼されるわけないだろ。"
+                    },
+                    {
+                        "id": "問題5",
+                        "text": "香水をつける時、どのくらいつけるのが正解？",
+                        "options": [
+                            "自分の体臭が消えるまで大量に",
+                            "1〜2プッシュをさりげなく",
+                            "「化学物質過敏症対策」でアルコールをかける",
+                            "自分の好きな基板の匂いを染み込ませる"
+                        ],
+                        "correctAnswer": "1〜2プッシュをさりげなく",
+                        "explanation": "香水の過剰投与は環境汚染（異臭騒ぎ）だ。適切なパラメータ設定を学べ。"
+                    },
+                    {
+                        "id": "問題6",
+                        "text": "寝癖がついているが、帽子を被れば隠れるからOK？",
+                        "options": [
+                            "OK。脱がなければバレない",
+                            "NG。脱ぐ場面を想定してセットすべき",
+                            "「物理的に重力の影響を受けた結果だ」と説明する",
+                            "相手にも寝癖をつけてもらう"
+                        ],
+                        "correctAnswer": "NG。脱ぐ場面を想定してセットすべき",
+                        "explanation": "帽子を脱いだ瞬間にエラーが発生するシステムは欠陥品だ。根本原因を解決しろ。"
+                    },
+                    {
+                        "id": "問題7",
+                        "text": "デートに持っていくバッグとして最適なのは？",
+                        "options": [
+                            "パンパンに膨らんだ機能性重視のリュック",
+                            "TPOに合わせたシンプルで綺麗なバッグ",
+                            "10年前から使っているボロボロの斜めがけ",
+                            "レジ袋"
+                        ],
+                        "correctAnswer": "TPOに合わせたシンプルで綺麗なバッグ",
+                        "explanation": "リュックが悪いんじゃない、「パンパンでボロボロ」なのが威圧感を与えるんだ。スリム化しろ。"
+                    },
+                    {
+                        "id": "問題8",
+                        "text": "唇がカサカサで皮が剥けている。どうする？",
+                        "options": [
+                            "「乾燥肌の仕様です」と放置",
+                            "リップクリームで保湿する",
+                            "相手に「保湿剤持ってる？」と借りる",
+                            "瞬間接着剤で剥がれた皮を固定する"
+                        ],
+                        "correctAnswer": "リップクリームで保湿する",
+                        "explanation": "カサカサの唇はキスを拒絶するバリアだ。リップクリームというパッチをこまめに当てろ。"
+                    },
+                    {
+                        "id": "問題9",
+                        "text": "眉毛が繋がっていることに気づいたら？",
+                        "options": [
+                            "「自然界の摂理だ」と放置",
+                            "中央を剃るか抜いて整える",
+                            "マジックで繋げて強調する",
+                            "左右の眉毛の導通チェックをする"
+                        ],
+                        "correctAnswer": "中央を剃るか抜いて整える",
+                        "explanation": "眉間の毛は清潔感を大幅に下げる。余計なブリッジ（毛）は切断するのが鉄則だ。"
+                    },
+                    {
+                        "id": "問題10",
+                        "text": "服の「シワ」についてどう考えるべき？",
+                        "options": [
+                            "「着ていれば体温で伸びる」から放置",
+                            "アイロンをかけるかシワのない服を選ぶ",
+                            "「これが味なんだ」と力説する",
+                            "相手の服のシワも指摘してあげる"
+                        ],
+                        "correctAnswer": "アイロンをかけるかシワのない服を選ぶ",
+                        "explanation": "シワだらけの服は「だらしなさ」のソースコード。アイロンがけというビルド作業をサボるな。"
+                    }
+                ]
+            },
+            {
+                "genre": "ジャンル2",
+                "questions": [
+                    {
+                        "id": "問題11",
+                        "text": "相手が「最近、疲れてるんだよね」と言った時の返しは？",
+                        "options": [
+                            "「効率の良い睡眠時間の相関図を見せる」",
+                            "「大変だったね。無理しないでね」と共感",
+                            "「俺の方が課題が多くて疲れてる」とマウント",
+                            "「それはビタミンB1不足だね」と分析"
+                        ],
+                        "correctAnswer": "「大変だったね。無理しないでね」と共感",
+                        "explanation": "相手は診断を求めてない、キャッシュ（感情）のクリアを求めてるんだ。まずは受容しろ。"
+                    },
+                    {
+                        "id": "問題12",
+                        "text": "沈黙が続いてしまった時、どうやって繋ぐ？",
+                        "options": [
+                            "無理やり専門用語で解説を始める",
+                            "相手の持ち物を褒めたり、共通の話題を探す",
+                            "「今の沈黙、何秒だったと思う？」と計る",
+                            "諦めてスマホでTwitterを見始める"
+                        ],
+                        "correctAnswer": "相手の持ち物を褒めたり、共通の話題を探す",
+                        "explanation": "沈黙を「エラー」と捉えてパニックになるな。共通プロトコルが見つかるまでスキャンしろ。"
+                    },
+                    {
+                        "id": "問題13",
+                        "text": "相手の話に対して相槌を打つなら？",
+                        "options": [
+                            "「それって論理的に言うと〜」",
+                            "「わかるよ」「それは面白いね！」",
+                            "「結論から話してくれる？」と急かす",
+                            "自分の持論を被せて上書きする"
+                        ],
+                        "correctAnswer": "「わかるよ」「それは面白いね！」",
+                        "explanation": "会話はプロセスを楽しむ逐次処理だ。「結論から話せ」は上司にだけ言え。"
+                    },
+                    {
+                        "id": "問題14",
+                        "text": "相手の知らない「高専ネタ」を話す時の注意点は？",
+                        "options": [
+                            "専門用語を乱発して賢さを見せる",
+                            "相手に伝わる言葉に変換して話す",
+                            "相手がポカンとしていても気にせず喋る",
+                            "「高専生以外には理解不能かな」と煽る"
+                        ],
+                        "correctAnswer": "相手に伝わる言葉に変換して話す",
+                        "explanation": "専門用語の垂れ流しは脳内メモリの無駄遣い。抽象化レイヤーを挟んで話せ。"
+                    },
+                    {
+                        "id": "問題15",
+                        "text": "相手の趣味が「推し活」だと知った時の反応は？",
+                        "options": [
+                            "「それ、金と時間の無駄じゃない？」",
+                            "「へぇ！どんなところが魅力なの？」と深掘り",
+                            "「俺の推し（二次元）の方が尊いよ」と対抗",
+                            "「推しの良さを構造化して説明して」"
+                        ],
+                        "correctAnswer": "「へぇ！どんなところが魅力なの？」と深掘り",
+                        "explanation": "他人の価値観を効率で評価するな。相手の「好き」という感情をリスペクトしろ。"
+                    },
+                    {
+                        "id": "問題16",
+                        "text": "自分の得意分野の話をする時、気をつけるべきは？",
+                        "options": [
+                            "相手の表情を見て、飽きてないか確認する",
+                            "相手を置き去りにしてでも、正確さを期す",
+                            "「こんなことも知らないの？」と教官ぶる",
+                            "最後にテストを出して理解度を確認する"
+                        ],
+                        "correctAnswer": "相手を置き去りにしてでも、正確さを期す",
+                        "explanation": "会話は「情報の転送」ではなく「感情の共有」だ。相手の目が死んだら即中断しろ。"
+                    },
+                    {
+                        "id": "問題17",
+                        "text": "相手が「〇〇に行きたい」と言った時、どう答える？",
+                        "options": [
+                            "「あそこはコスパ悪いし、アクセスも最悪だよ」",
+                            "「いいね！いつにする？楽しみだね」",
+                            "「その場所の歴史的背景を知ってる？」",
+                            "「VRで体験すれば十分じゃない？」"
+                        ],
+                        "correctAnswer": "「いいね！いつにする？楽しみだね」",
+                        "explanation": "効率やコスパを優先するあまり、相手の「ワクワク」をキルするな。"
+                    },
+                    {
+                        "id": "問題18",
+                        "text": "自分の非を指摘された時の正しい態度は？",
+                        "options": [
+                            "「論理的に説明すれば俺は悪くない」と論破",
+                            "「ごめん、次は気をつけるね」と素直に謝る",
+                            "相手の指摘の矛盾点を探して逆襲する",
+                            "黙り込んでフリーズする"
+                        ],
+                        "correctAnswer": "「ごめん、次は気をつけるね」と素直に謝る",
+                        "explanation": "謝罪はシステムの再起動と同じ。論理で返すと無限ループに陥って関係がクラッシュするぞ。"
+                    },
+                    {
+                        "id": "問題19",
+                        "text": "LINEで相手から質問が来た時の返し方は？",
+                        "options": [
+                            "1000文字以上の長文で完璧に回答する",
+                            "質問に答えつつ、相手に質問を返す",
+                            "「ググれば？」とURLだけ送る",
+                            "既読をつけて3日間放置する"
+                        ],
+                        "correctAnswer": "質問に答えつつ、相手に質問を返す",
+                        "explanation": "長文はスパム。短文でのハンドシェイクを繰り返して、通信を安定させろ。"
+                    },
+                    {
+                        "id": "問題20",
+                        "text": "会話中にスマホをいじりたくなったら？",
+                        "options": [
+                            "相手の話を適当に聞きながらSNSをチェック",
+                            "緊急時以外はカバンにしまっておく",
+                            "「今、お前の話をログに記録してるんだ」と言う",
+                            "相手と一緒に無言で別々のゲームをする"
+                        ],
+                        "correctAnswer": "緊急時以外はカバンにしまっておく",
+                        "explanation": "マルチタスクを気取るな。目の前の相手に全リソースを割くのがマナーだ。"
+                    }
+                ]
+            },
+            {
+                "genre": "ジャンル3",
+                "questions": [
+                    {
+                        "id": "問題21",
+                        "text": "相手から返信がないのに、追加でメッセージを送るのは？",
+                        "options": [
+                            "相手の安否が不明なので10分おきに送る",
+                            "相手のペースを尊重し、返信が来るまで待つ",
+                            "「死んだの？」と不謹慎なジョークを送る",
+                            "自分の日記を延々と送り続ける"
+                        ],
+                        "correctAnswer": "相手のペースを尊重し、返信が来るまで待つ",
+                        "explanation": "返信がないのは「処理中」か「割り込み禁止」の状態。リクエストを連投してサーバー（相手）を落とすな。"
+                    },
+                    {
+                        "id": "問題22",
+                        "text": "LINEのアイコン、何にするのが無難？",
+                        "options": [
+                            "飼っているペットや風景、自分の後ろ姿",
+                            "好きなアニメキャラの際どい画像",
+                            "複雑な回路図や数式",
+                            "初期設定のまま（人型アイコン）"
+                        ],
+                        "correctAnswer": "好きなアニメキャラの際どい画像",
+                        "explanation": "アイコンは第一印象のサムネイルだ。こだわりが強すぎる画像や未設定は、新規ユーザー（相手）を遠ざけるぞ。"
+                    },
+                    {
+                        "id": "問題23",
+                        "text": "SNSで「人生終了」などの病み投稿を連発するのは？",
+                        "options": [
+                            "構ってほしいので毎日投稿する",
+                            "ネガティブなことはSNSに書かず、個人的に相談する",
+                            "ポエム形式で意味深に綴る",
+                            "相手のアカウントをタグ付けして投稿する"
+                        ],
+                        "correctAnswer": "ネガティブなことはSNSに書かず、個人的に相談する",
+                        "explanation": "SNSは公開ログだ。デバッグ中の愚痴を全体公開するな。メンヘラ投稿は相手の信頼スコアを著しく下げる。"
+                    },
+                    {
+                        "id": "問題24",
+                        "text": "相手にLINEを送る時間帯、配慮すべきは？",
+                        "options": [
+                            "自分が起きていれば深夜3時でもOK",
+                            "相手の生活リズムに合わせ、深夜や早朝は避ける",
+                            "相手のPCがオンラインになった瞬間を狙う",
+                            "24時間等間隔で定期送信する"
+                        ],
+                        "correctAnswer": "相手の生活リズムに合わせ、深夜や早朝は避ける",
+                        "explanation": "相手の睡眠時間は「メンテナンス時間」だ。深夜のパケット送信は、睡眠障害というバグを引き起こすぞ。"
+                    },
+                    {
+                        "id": "問題25",
+                        "text": "LINEの「既読」がついたのに返信が来ない。どう考える？",
+                        "options": [
+                            "「バグかな？」と思って同じ内容を再送する",
+                            "「忙しいんだろうな」と解釈して気楽に待つ",
+                            "「既読無視された」とSNSで騒ぐ",
+                            "相手の家まで行って確認する"
+                        ],
+                        "correctAnswer": "「忙しいんだろうな」と解釈して気楽に待つ",
+                        "explanation": "既読は「受信完了」のACK（確認応答）に過ぎない。レスポンスの内容を生成するには時間がかかるんだ。"
+                    },
+                    {
+                        "id": "問題26",
+                        "text": "相手に送る文章の長さはどのくらいが適切？",
+                        "options": [
+                            "相手の送ってきた長さと同程度にする",
+                            "常に画面を埋め尽くすほどの長文",
+                            "常に一言（「あ」「うん」）だけ",
+                            "相手の文章を添削して送り返す"
+                        ],
+                        "correctAnswer": "常に画面を埋め尽くすほどの長文",
+                        "explanation": "パケットサイズを合わせるのが通信の基本だ。長すぎれば重く、短すぎれば切断（拒絶）に見えるぞ。"
+                    },
+                    {
+                        "id": "問題27",
+                        "text": "スタンプだけの返信、どう使うべき？",
+                        "options": [
+                            "会話を終わらせたい時や、軽く同意する時に使う",
+                            "全ての会話をスタンプのみで完結させる",
+                            "相手が嫌がっているグロいスタンプを送る",
+                            "スタンプを10個連続で送る"
+                        ],
+                        "correctAnswer": "全ての会話をスタンプのみで完結させる",
+                        "explanation": "スタンプは補助的な「演出パッチ」だ。メインロジック（言葉）をサボりすぎると、意思疎通が不全になるぞ。"
+                    },
+                    {
+                        "id": "問題28",
+                        "text": "相手のSNSの過去投稿をすべて「いいね」しに行くのは？",
+                        "options": [
+                            "「関心がある」アピールなのでOK",
+                            "ストーカーっぽくて怖いので控える",
+                            "全投稿にコメントで間違いを指摘する",
+                            "魚拓（保存）をとって本人に報告する"
+                        ],
+                        "correctAnswer": "ストーカーっぽくて怖いので控える",
+                        "explanation": "全件クロールは検索エンジンだけで十分だ。過去ログを掘り返しすぎるのは、監視のログを残すのと同じだぞ。"
+                    },
+                    {
+                        "id": "問題29",
+                        "text": "LINEで「句読点」を全く使わないのはあり？",
+                        "options": [
+                            "若者言葉っぽくてカッコいいからOK",
+                            "読みづらいので適切に句読点や絵文字を使う",
+                            "全て「、」だけで繋げる",
+                            "全て「；（セミコロン）」で終わらせる"
+                        ],
+                        "correctAnswer": "読みづらいので適切に句読点や絵文字を使う",
+                        "explanation": "読点がないのは、パケットの区切りがないストリームデータと同じだ。デコード（解読）の手間を相手にかけるな。"
+                    },
+                    {
+                        "id": "問題30",
+                        "text": "写真を送る際、画質やサイズにこだわるべき？",
+                        "options": [
+                            "相手が開きやすいサイズで、綺麗なものを送る",
+                            "常にRAWデータで数100MBのファイルを送る",
+                            "何が写っているか判別不能な低画質で送る",
+                            "座標データ（緯度経度）だけ送る"
+                        ],
+                        "correctAnswer": "常にRAWデータで数100MBのファイルを送る",
+                        "explanation": "「見やすさ」というUIUXを意識しろ。情報の解像度より、相手のデバイスへの負荷を考えろ。"
+                    }
+                ]
+            },
+            {
+                "genre": "ジャンル4",
+                "questions": [
+                    {
+                        "id": "問題31",
+                        "text": "食べ物を噛む時に「クチャクチャ」と音を立てるのは？",
+                        "options": [
+                            "「咀嚼音を聞かせるのもサービスだ」と放置",
+                            "絶対NG。口を閉じて静かに噛む",
+                            "相手の咀嚼音と同期させる",
+                            "騒音計で音量を測定し、規定値内ならOKとする"
+                        ],
+                        "correctAnswer": "絶対NG。口を閉じて静かに噛む",
+                        "explanation": "咀嚼音は周囲への「ノイズ公害」だ。物理的な遮音（口を閉じる）を徹底しろ。"
+                    },
+                    {
+                        "id": "問題32",
+                        "text": "箸の持ち方がめちゃくちゃ。指摘されたら？",
+                        "options": [
+                            "「食えればいいだろ」と逆ギレする",
+                            "素直に直し、正しい持ち方を練習する",
+                            "「この方が力学的に優れている」と解説する",
+                            "指箸で相手の矛盾点を指す"
+                        ],
+                        "correctAnswer": "素直に直し、正しい持ち方を練習する",
+                        "explanation": "箸使いは「育ち」という名の初期設定だ。バグを指摘されたら、素直に修正（リファクタリング）しろ。"
+                    },
+                    {
+                        "id": "問題33",
+                        "text": "注文が決まらない相手に対してどう接する？",
+                        "options": [
+                            "「まだ決まらないの？非効率だね」と急かす",
+                            "「ゆっくりでいいよ」と言いつつ、自分も悩む",
+                            "店員を呼んで勝手に相手の分も決める",
+                            "全メニューのカロリー計算を始める"
+                        ],
+                        "correctAnswer": "「ゆっくりでいいよ」と言いつつ、自分も悩む",
+                        "explanation": "注文は楽しみの一環だ。処理速度を求めるな。相手の「選択というプロセス」を尊重しろ。"
+                    },
+                    {
+                        "id": "問題34",
+                        "text": "店員さんへの態度はどうあるべき？",
+                        "options": [
+                            "客は神様なので横柄に接する",
+                            "丁寧な言葉遣いで「ありがとうございます」と言う",
+                            "無視して相手（恋人）とだけ話す",
+                            "店員の動きの効率の悪さを指摘する"
+                        ],
+                        "correctAnswer": "丁寧な言葉遣いで「ありがとうございます」と言う",
+                        "explanation": "店員への態度は「未来の相手への態度」のプレビューだ。偉そうな態度は即、評価エラーになるぞ。"
+                    },
+                    {
+                        "id": "問題35",
+                        "text": "料理が運ばれてきた。真っ先にすべきことは？",
+                        "options": [
+                            "自分の分だけさっさと食べ始める",
+                            "全員分揃うまで待つか「お先にどうぞ」と声をかける",
+                            "料理の温度を非接触温度計で測る",
+                            "具材を分解して成分を調査する"
+                        ],
+                        "correctAnswer": "全員分揃うまで待つか「お先にどうぞ」と声をかける",
+                        "explanation": "「共食」は同期処理だ。一人だけ並列実行（先行して食べる）して、会話のテンポを崩すな。"
+                    },
+                    {
+                        "id": "問題36",
+                        "text": "相手が残した食べ物を勝手に食べるのは？",
+                        "options": [
+                            "もったいないので、許可なく奪って食べる",
+                            "「食べていい？」と確認してからにする",
+                            "「熱効率が悪い」と残したことを説教する",
+                            "ゴミ箱にシュートする"
+                        ],
+                        "correctAnswer": "「食べていい？」と確認してからにする",
+                        "explanation": "相手のお皿は「プライベート領域」だ。許可なくアクセス（メモリアクセス違反）をするな。"
+                    },
+                    {
+                        "id": "問題37",
+                        "text": "食事中にスマホをテーブルに置くのは？",
+                        "options": [
+                            "通知が気になるので画面を上にして置く",
+                            "カバンやポケットに入れ、食事に集中する",
+                            "相手の顔が見えないようスマホを立てて置く",
+                            "スマホで動画を見ながら食べる"
+                        ],
+                        "correctAnswer": "カバンやポケットに入れ、食事に集中する",
+                        "explanation": "スマホを置く行為は「お前よりこっち（スマホ）が大事」というシグナルだ。通信は遮断しろ。"
+                    },
+                    {
+                        "id": "問題38",
+                        "text": "食べ方が汚い（こぼす、皿が汚れる）自覚があるなら？",
+                        "options": [
+                            "「胃に入れば同じだ」と気にしない",
+                            "一口を小さくし、丁寧に食べるよう意識する",
+                            "相手に拭いてもらう",
+                            "撥水加工の服を着て対策完了とする"
+                        ],
+                        "correctAnswer": "一口を小さくし、丁寧に食べるよう意識する",
+                        "explanation": "食べ方は視覚的な満足度に直結する。フロントエンド（見た目）の崩れたサイトに誰も入りたくないだろ。"
+                    },
+                    {
+                        "id": "問題39",
+                        "text": "支払いの時、クーポンを血眼になって探すのは？",
+                        "options": [
+                            "1円でも得したいので10分かけて探す",
+                            "事前に用意しておくか、見つからなきゃ諦める",
+                            "相手にクーポンを持っていないか問い詰める",
+                            "クーポンのシステム上の欠陥を指摘して安くさせる"
+                        ],
+                        "correctAnswer": "事前に用意しておくか、見つからなきゃ諦める",
+                        "explanation": "10円をケチって1000円分の好感度をドブに捨てるな。事前のバッチ処理（準備）を怠るな。"
+                    },
+                    {
+                        "id": "問題40",
+                        "text": "相手の選んだメニューを否定するのは？",
+                        "options": [
+                            "「それ、添加物多いよ」と健康オタクぶる",
+                            "「それも美味しそうだね！」と肯定する",
+                            "「俺の方が高いもの頼んだ」と自慢する",
+                            "相手のメニューと自分のメニューの原価率を比べる"
+                        ],
+                        "correctAnswer": "「それも美味しそうだね！」と肯定する",
+                        "explanation": "食事は楽しみを共有するインターフェースだ。デバッグ（粗探し）して相手の気分をダウングレードさせるな。"
+                    }
+                ]
+            },
+            {
+                "genre": "ジャンル5",
+                "questions": [
+                    {
+                        "id": "問題41",
+                        "text": "デートの場所選び、何を確認しておくべき？",
+                        "options": [
+                            "当日の天気と、お店の定休日・予約状況",
+                            "自分の家からの最短ルートのみ",
+                            "近くに秋葉原があるかどうか",
+                            "相手が何時間歩けるかの限界値"
+                        ],
+                        "correctAnswer": "自分の家からの最短ルートのみ",
+                        "explanation": "事前調査（サーベイ）不足はプロジェクト失敗の最大要因だ。環境構築（予約と下調べ）をサボるな。"
+                    },
+                    {
+                        "id": "問題42",
+                        "text": "相手がヒールを履いてきた。移動プランはどうする？",
+                        "options": [
+                            "構わず、あちこち10km以上歩き回る",
+                            "こまめに休憩を挟み、歩行距離を短くする",
+                            "「ヒールなんて非効率な履き物だ」と説教する",
+                            "相手をおんぶして移動する"
+                        ],
+                        "correctAnswer": "こまめに休憩を挟み、歩行距離を短くする",
+                        "explanation": "相手の装備（ヒール）に合わせた負荷テストを行え。物理的な限界を無視したプランは暴挙だ。"
+                    },
+                    {
+                        "id": "問題43",
+                        "text": "行こうとした店が満席で入れなかったら？",
+                        "options": [
+                            "「予測できなかった俺がバカだった」と激しく落ち込む",
+                            "第2、第3の候補（バックアップ）を提案する",
+                            "店の前で空くまで無言で2時間待機する",
+                            "店のシステムに文句を言う"
+                        ],
+                        "correctAnswer": "第2、第3の候補（バックアップ）を提案する",
+                        "explanation": "例外処理（エラーハンドリング）がデートの質を決める。プランBを用意しておくのがデキる男だ。"
+                    },
+                    {
+                        "id": "問題44",
+                        "text": "デート中の移動中、ずっと無言なのはあり？",
+                        "options": [
+                            "「会話の必要性がない」と判断して黙る",
+                            "景色や次の予定の話など、軽い会話を振る",
+                            "ずっとイヤホンで音楽を聴く",
+                            "相手の歩調に合わせてモールス信号を打つ"
+                        ],
+                        "correctAnswer": "景色や次の予定の話など、軽い会話を振る",
+                        "explanation": "移動時間はアイドルタイムじゃない。コミュニケーションというバックグラウンド処理を走らせろ。"
+                    },
+                    {
+                        "id": "問題45",
+                        "text": "デートの予算、相手にどう伝える？",
+                        "options": [
+                            "「今日は1万円以内に収めて」と予算制限を課す",
+                            "明確には言わず、相手の希望を聞きつつ調整する",
+                            "「全額出すから好きにしていいよ」と見栄を張る",
+                            "レシートを全てスキャンして共有フォルダに入れる"
+                        ],
+                        "correctAnswer": "明確には言わず、相手の希望を聞きつつ調整する",
+                        "explanation": "予算管理は重要だが、それを相手に意識させすぎるな。スマートな資金運用を見せろ。"
+                    },
+                    {
+                        "id": "問題46",
+                        "text": "雨が降ってきた時の対応は？",
+                        "options": [
+                            "「予報になかった、気象庁のバグだ」と怒る",
+                            "傘をサッと差し出すか、屋内施設への変更を提案する",
+                            "自分だけ折りたたみ傘を差して歩く",
+                            "相手を雨除けにする"
+                        ],
+                        "correctAnswer": "傘をサッと差し出すか、屋内施設への変更を提案する",
+                        "explanation": "天候は不確定要素だ。動的なプラン変更こそ、エンジニアとしての腕の見せ所だろ。"
+                    },
+                    {
+                        "id": "問題47",
+                        "text": "集合時間を決める時、どう指定する？",
+                        "options": [
+                            "「12時3分45秒に改札前」と厳密に指定する",
+                            "「12時くらいに〇〇周辺で」と余裕を持たせる",
+                            "自分の都合が良い時間だけを一方的に告げる",
+                            "集合場所を座標（緯度経度）で送る"
+                        ],
+                        "correctAnswer": "「12時くらいに〇〇周辺で」と余裕を持たせる",
+                        "explanation": "厳密すぎる指定は、相手に精神的なオーバーヘッドを強いる。マージン（余裕）を持たせろ。"
+                    },
+                    {
+                        "id": "問題48",
+                        "text": "映画デートで、相手が全く興味なさそうなアニメ映画を選ぶのは？",
+                        "options": [
+                            "「これが俺のバイブルだから観ろ」と強制する",
+                            "お互いが楽しめそうな作品を相談して決める",
+                            "映画館で自分だけ観て、相手には外で待たせる",
+                            "作品の矛盾点を上映中に隣で指摘し続ける"
+                        ],
+                        "correctAnswer": "お互いが楽しめそうな作品を相談して決める",
+                        "explanation": "デートはソロプレイじゃない。共有リソース（映画）は、双方の満足度が最大化されるものを選べ。"
+                    },
+                    {
+                        "id": "問題49",
+                        "text": "解散のタイミング、どう切り出す？",
+                        "options": [
+                            "相手が疲れる前に「今日はありがとう」と切り出す",
+                            "相手が「帰りたい」と言うまで粘る",
+                            "何も言わずに駅で走り去る",
+                            "「本日のデート、全工程終了」と宣言する"
+                        ],
+                        "correctAnswer": "相手が「帰りたい」と言うまで粘る",
+                        "explanation": "クローズ処理（お別れ）が不適切だと、全体のログが台無しになる。名残惜しさを残しつつスマートに終わらせろ。"
+                    },
+                    {
+                        "id": "問題50",
+                        "text": "次のデートの約束、いつするのがベスト？",
+                        "options": [
+                            "当日の楽しかった熱量が残っているうちに誘う",
+                            "1ヶ月くらい放置して様子を見る",
+                            "「次回の仕様書を送る」と言って半年連絡しない",
+                            "相手のスケジュールをハッキングして勝手に入れる"
+                        ],
+                        "correctAnswer": "1ヶ月くらい放置して様子を見る",
+                        "explanation": "鉄は熱いうちに打て。セッションが切断される前に、次のコネクションを確保しろ。"
+                    }
+                ]
+            },
+            {
+                "genre": "ジャンル6",
+                "questions": [
+                    {
+                        "id": "問題51",
+                        "text": "相手が自分より高いスペック（学歴や年収）だと判明したら？",
+                        "options": [
+                            "「どうせ俺なんて…」と卑屈になる",
+                            "「すごいね！」と素直に尊敬し、自分も磨く",
+                            "「でも専門知識なら俺が上だ」と対抗する",
+                            "相手のスペックの脆弱性を探し始める"
+                        ],
+                        "correctAnswer": "「すごいね！」と素直に尊敬し、自分も磨く",
+                        "explanation": "劣等感による自虐は、相手の「選んだ眼」を否定することになる。自己肯定感のパッチを当てろ。"
+                    },
+                    {
+                        "id": "問題52",
+                        "text": "喧嘩をした時、相手が泣き出してしまったら？",
+                        "options": [
+                            "「泣くのは論理的解決を拒絶する行為だ」と怒る",
+                            "ひとまず謝り、相手が落ち着くのを待つ",
+                            "「涙の成分の98%は水だね」と分析する",
+                            "無視して自分の主張を続ける"
+                        ],
+                        "correctAnswer": "ひとまず謝り、相手が落ち着くのを待つ",
+                        "explanation": "感情のオーバーフローが起きた時にロジックを叩き込むのは最悪のコマンドだ。まずは冷却しろ。"
+                    },
+                    {
+                        "id": "問題53",
+                        "text": "自分の過去の「ぼっち」エピソードを披露する時は？",
+                        "options": [
+                            "「俺、友達ゼロだったんだよね」と暗く話す",
+                            "笑い話に昇華して、明るく話す",
+                            "相手に同情を強要する",
+                            "ぼっちのメリットを数式で証明する"
+                        ],
+                        "correctAnswer": "笑い話に昇華して、明るく話す",
+                        "explanation": "悲劇のヒロイン（ヒーロー）ぶるのは重い。過去のバグは笑える「仕様」として語るのがスマートだ。"
+                    },
+                    {
+                        "id": "問題54",
+                        "text": "「愛」について聞かれた時の理想的な答えは？",
+                        "options": [
+                            "「脳内麻薬による一時的なバグだと思う」",
+                            "「一緒にいて安心できる、大切な感情かな」",
+                            "「愛の定義を400字以内で答えて」と逆質問",
+                            "ウィキペディアの文章を引用する"
+                        ],
+                        "correctAnswer": "「一緒にいて安心できる、大切な感情かな」",
+                        "explanation": "ロマンチックな場面で科学的根拠を持ち出すな。情緒的なインターフェースで応答しろ。"
+                    },
+                    {
+                        "id": "問題55",
+                        "text": "相手が落ち込んでいる時、励ますつもりで言うべきは？",
+                        "options": [
+                            "「君の失敗は、確率論的にあり得る話だよ」",
+                            "「大変だったね。俺はいつでも味方だよ」",
+                            "「その失敗、俺ならこう回避したね」と添削",
+                            "「落ち込んでも生産性は上がらないよ」"
+                        ],
+                        "correctAnswer": "「大変だったね。俺はいつでも味方だよ」",
+                        "explanation": "励ましは「処理効率」の話じゃない。相手の心のバックアップになることが最優先だ。"
+                    },
+                    {
+                        "id": "問題56",
+                        "text": "自分の趣味に大金を注ぎ込んでいることを隠すべき？",
+                        "options": [
+                            "「これは将来への投資だ」と嘘をつく",
+                            "正直に話し、理解を得られる範囲で楽しむ",
+                            "相手の服代と比較して「俺の方がマシ」と言う",
+                            "趣味の領収書をすべて隠滅する"
+                        ],
+                        "correctAnswer": "正直に話し、理解を得られる範囲で楽しむ",
+                        "explanation": "隠し事は後の大きなバグ（不信感）に繋がる。透明性の高い資産運用を見せろ。"
+                    },
+                    {
+                        "id": "問題57",
+                        "text": "「結婚したら仕事はやめてほしい」という自分の希望を伝える時は？",
+                        "options": [
+                            "「これが俺の家庭内プロトコルだ」と断定する",
+                            "相手のキャリアプランを尊重し、話し合う",
+                            "「専業主婦の方がQOLが上がる」と説得する",
+                            "自分の母親の例を出して強制する"
+                        ],
+                        "correctAnswer": "相手のキャリアプランを尊重し、話し合う",
+                        "explanation": "人生の共同プロジェクトに一方的な仕様変更は許されない。双方向の合意（コンセンサス）をとれ。"
+                    },
+                    {
+                        "id": "問題58",
+                        "text": "相手のミスでデートが台無しになった時の反応は？",
+                        "options": [
+                            "「損害賠償ものだね」と皮肉を言う",
+                            "「こういうこともあるよ、次は気をつけよう」",
+                            "1週間、無言のまま既読無視する",
+                            "相手のミスをExcelに記録して共有する"
+                        ],
+                        "correctAnswer": "「こういうこともあるよ、次は気をつけよう」",
+                        "explanation": "エラーハンドリングに寛容になれ。お前もいつかクリティカルなバグを出すんだから。"
+                    },
+                    {
+                        "id": "問題59",
+                        "text": "自分のこだわり（マイルール）を相手に強要するのは？",
+                        "options": [
+                            "「俺のルールに従えないなら、互換性がない」",
+                            "自分のこだわりを説明しつつ、妥協点を探す",
+                            "相手が無意識に従うように洗脳する",
+                            "相手を「非効率な人間」とレッテル貼りする"
+                        ],
+                        "correctAnswer": "自分のこだわりを説明しつつ、妥協点を探す",
+                        "explanation": "自分専用のOSを他人にインストールさせるな。マルチプラットフォームに対応した寛容さを持て。"
+                    },
+                    {
+                        "id": "問題60",
+                        "text": "相手に「何で私のこと好きなの？」と聞かれたら？",
+                        "options": [
+                            "「消去法で残ったから」",
+                            "「一緒にいると自分が成長できるし、何より楽しいから」",
+                            "「顔の黄金比が整っているから」",
+                            "「言葉で説明するのは非効率だ」と逃げる"
+                        ],
+                        "correctAnswer": "「一緒にいると自分が成長できるし、何より楽しいから」",
+                        "explanation": "ここでは論理ではなく、感情の「生データ」をぶつけろ。計算結果ではなく、プロセスを語れ。"
+                    }
+                ]
+            },
+            {
+                "genre": "ジャンル7",
+                "questions": [
+                    {
+                        "id": "問題61",
+                        "text": "初めての誕生日プレゼント、何を選ぶのが正解？",
+                        "options": [
+                            "自分の好きなジャンルの技術書",
+                            "相手の好みや、欲しがっていたものをリサーチ",
+                            "100万円以上のローンで買った指輪",
+                            "自作の便利ツール（ただしUIは真っ黒）"
+                        ],
+                        "correctAnswer": "相手の好みや、欲しがっていたものをリサーチ",
+                        "explanation": "プレゼントは「自分の押し付け」じゃない。相手のニーズを正確に要件定義しろ。"
+                    },
+                    {
+                        "id": "問題62",
+                        "text": "プレゼントの金額について、どう考える？",
+                        "options": [
+                            "「高ければ高いほど愛が深い」と借金する",
+                            "相手が気を使わない程度の、相場に合わせる",
+                            "「1円でも安いもの」とAmazonのセール品",
+                            "相手の年収の10%と厳密に計算する"
+                        ],
+                        "correctAnswer": "相手が気を使わない程度の、相場に合わせる",
+                        "explanation": "愛は課金額で決まらない。バランスを欠いた投資は、相手の負担（心理的負債）になるぞ。"
+                    },
+                    {
+                        "id": "問題63",
+                        "text": "クリスマスに仕事や研究が入ってしまったら？",
+                        "options": [
+                            "相手に黙って当日ドタキャンする",
+                            "事前に相談し、別の日でしっかりフォローする",
+                            "「キリストの誕生日は俺に関係ない」と言う",
+                            "相手を研究室に連れてきて手伝わせる"
+                        ],
+                        "correctAnswer": "事前に相談し、別の日でしっかりフォローする",
+                        "explanation": "スケジュールの競合は早めに解決しろ。代わりの日程（代替案）を出すのが誠意だ。"
+                    },
+                    {
+                        "id": "問題64",
+                        "text": "手作りのプレゼント（DIY）をあげる時の注意点は？",
+                        "options": [
+                            "自分が納得するまで機能を盛り込む",
+                            "相手が「実用的で可愛い」と思える範囲に留める",
+                            "制作過程の苦労話を1時間語る",
+                            "設計図もセットで渡す"
+                        ],
+                        "correctAnswer": "相手が「実用的で可愛い」と思える範囲に留める",
+                        "explanation": "手作りは「独りよがり」になりやすい。相手が使うシーンをシミュレーションしたか？"
+                    },
+                    {
+                        "id": "問題65",
+                        "text": "サプライズを仕掛けるなら、どんな内容がいい？",
+                        "options": [
+                            "相手を驚かせて泣かせるような過激な演出",
+                            "相手の好みを踏まえた、さりげない驚き",
+                            "警察を呼ぶなどの大掛かりなドッキリ",
+                            "公衆の面前で愛を叫ぶ（フラッシュモブ）"
+                        ],
+                        "correctAnswer": "相手の好みを踏まえた、さりげない驚き",
+                        "explanation": "サプライズは「自己満足」になりがち。相手の「驚き耐性」を事前にテストしておけ。"
+                    },
+                    {
+                        "id": "問題66",
+                        "text": "ラッピング（包装）について、どう思う？",
+                        "options": [
+                            "「中身が重要だから、レジ袋でいい」",
+                            "店の人に綺麗に包んでもらうか、自分で頑張る",
+                            "回路基板やアルミホイルで包む",
+                            "段ボールに緩衝材を詰めて送る"
+                        ],
+                        "correctAnswer": "店の人に綺麗に包んでもらうか、自分で頑張る",
+                        "explanation": "パッケージングは製品の一部だ。開封体験（UX）を疎かにするな。"
+                    },
+                    {
+                        "id": "問題67",
+                        "text": "プレゼントに「メッセージカード」を添えるなら？",
+                        "options": [
+                            "感謝の気持ちを直筆で一言添える",
+                            "文字数制限ギリギリまで自分の要望を書く",
+                            "「以上、よろしくお願いいたします」と結ぶ",
+                            "QRコードだけ載せてサイトに飛ばす"
+                        ],
+                        "correctAnswer": "文字数制限ギリギリまで自分の要望を書く",
+                        "explanation": "デジタルな時代だからこそ、アナログな直筆データが最強の暗号（鍵）になるんだ。"
+                    },
+                    {
+                        "id": "問題68",
+                        "text": "相手からのプレゼントが、全く好みじゃなかったら？",
+                        "options": [
+                            "「これ、俺の仕様に合わないから返品して」",
+                            "「ありがとう！大切にするね」と気持ちを受け取る",
+                            "メルカリでいくらで売れるかその場で調べる",
+                            "どこがダメか論理的にフィードバックする"
+                        ],
+                        "correctAnswer": "「ありがとう！大切にするね」と気持ちを受け取る",
+                        "explanation": "プレゼントは「モノ」ではなく「贈るというアクション」を受け取るものだ。"
+                    },
+                    {
+                        "id": "問題69",
+                        "text": "バレンタインの「お返し」を忘れてしまったら？",
+                        "options": [
+                            "「ホワイトデーなんてお菓子業界の陰謀だ」",
+                            "すぐに謝り、後日必ず美味しいものを御馳走する",
+                            "1年後のバレンタインまで待つ",
+                            "忘れたことを逆手にとって相手を責める"
+                        ],
+                        "correctAnswer": "すぐに謝り、後日必ず美味しいものを御馳走する",
+                        "explanation": "負債（借り）を放置するな。利子がつく前に、誠意ある補填を行え。"
+                    },
+                    {
+                        "id": "問題70",
+                        "text": "デートの記念日（1ヶ月記念など）を祝うべき？",
+                        "options": [
+                            "「そんなのただの経過日数だ」と無視する",
+                            "相手が祝いたいタイプなら、一緒に楽しむ",
+                            "1秒単位で経過時間を計測して報告する",
+                            "「毎日が記念日」と言って何もしない"
+                        ],
+                        "correctAnswer": "相手が祝いたいタイプなら、一緒に楽しむ",
+                        "explanation": "記念日は二人の関係を定期メンテナンスする機会だ。ルーチンワークと思わず楽しめ。"
+                    }
+                ]
+            },
+            {
+                "genre": "ジャンル8",
+                "questions": [
+                    {
+                        "id": "問題71",
+                        "text": "自分の友達（高専のノリ）に彼女を紹介する時は？",
+                        "options": [
+                            "下ネタや内輪ネタで盛り上がる",
+                            "彼女が疎外感を感じないよう配慮する",
+                            "彼女のスペックを友達に自慢してマウントをとる",
+                            "彼女に高専の校歌を歌わせる"
+                        ],
+                        "correctAnswer": "彼女が疎外感を感じないよう配慮する",
+                        "explanation": "高専のノリを外部に持ち出すな。身内限定のプロトコルは外では通じないぞ。"
+                    },
+                    {
+                        "id": "問題72",
+                        "text": "相手の友達に会うことになった。どんな格好で行く？",
+                        "options": [
+                            "いつものヨレヨレの服",
+                            "清潔感のある、相手が恥ずかしくない格好",
+                            "「俺の正装だ」と言って作業着で行く",
+                            "相手の友達のSNSを特定して、その好みに寄せる"
+                        ],
+                        "correctAnswer": "清潔感のある、相手が恥ずかしくない格好",
+                        "explanation": "お前は「彼女のパートナー」として評価される。彼女の社会的評価を下げないUIで臨め。"
+                    },
+                    {
+                        "id": "問題73",
+                        "text": "相手が親と仲が悪いという話を打ち明けてきたら？",
+                        "options": [
+                            "「親は大切にすべきだ」と正論で説教する",
+                            "「そうなんだね、辛かったね」と話を聞く",
+                            "「うちの親と交換する？」と提案する",
+                            "遺伝子学的に親子の縁は切れないと解説する"
+                        ],
+                        "correctAnswer": "「そうなんだね、辛かったね」と話を聞く",
+                        "explanation": "家庭の事情に外部の人間が安易な解決策（正論）を出すな。まずは傾聴しろ。"
+                    },
+                    {
+                        "id": "問題74",
+                        "text": "自分の親がデートに干渉してくる。どうする？",
+                        "options": [
+                            "「親が言うから…」と親の指示に従う",
+                            "自分が窓口となり、適切に線を引く",
+                            "親と彼女を戦わせて勝った方に従う",
+                            "親に全デートコースを報告する"
+                        ],
+                        "correctAnswer": "自分が窓口となり、適切に線を引く",
+                        "explanation": "親離れできていないエンジニアに、自分の人生をリードさせるユーザーはいない。"
+                    },
+                    {
+                        "id": "問題75",
+                        "text": "デート中に自分の友達から電話がかかってきたら？",
+                        "options": [
+                            "相手を放置して、友達と30分話し込む",
+                            "「今デート中だから後で」と短く切る",
+                            "相手に受話器を渡して紹介する",
+                            "スピーカーフォンにして会話を公開する"
+                        ],
+                        "correctAnswer": "「今デート中だから後で」と短く切る",
+                        "explanation": "割り込み処理には優先順位をつけろ。現在のメインプロセス（彼女）を中断させるな。"
+                    },
+                    {
+                        "id": "問題76",
+                        "text": "相手の友達が自分を否定してきたと聞いたら？",
+                        "options": [
+                            "「そいつを論破しに行く」と息巻く",
+                            "「俺に足りないところがあったかな」と冷静に受け止める",
+                            "「そんな友達とは縁を切れ」と命令する",
+                            "相手の友達の住所を特定しようとする"
+                        ],
+                        "correctAnswer": "「俺に足りないところがあったかな」と冷静に受け止める",
+                        "explanation": "他人の評価に過剰反応して暴走するな。彼女が自分を信じてくれていれば、それが正解だ。"
+                    },
+                    {
+                        "id": "問題77",
+                        "text": "相手の家族の誕生日に、何かすべき？",
+                        "options": [
+                            "高価な家電を送って財力を見せつける",
+                            "彼女に相談し、手土産程度を検討する",
+                            "「俺はまだ家族じゃないから無関係」と断じる",
+                            "相手の家族全員の戸籍謄本を取り寄せる"
+                        ],
+                        "correctAnswer": "彼女に相談し、手土産程度を検討する",
+                        "explanation": "距離感を間違えるな。過剰なアクセスも、完全なアクセス拒否もどちらも不適切だ。"
+                    },
+                    {
+                        "id": "問題78",
+                        "text": "自分の趣味のコミュニティに相手を誘うなら？",
+                        "options": [
+                            "強制的に参加させ、専門用語を教え込む",
+                            "相手が興味を持ったら、優しく案内する",
+                            "「素人には無理だ」と突き放す",
+                            "相手をダミーアカウントとして登録する"
+                        ],
+                        "correctAnswer": "相手が興味を持ったら、優しく案内する",
+                        "explanation": "趣味の共有は、相手の自由意志に基づくべきだ。強制的なログインは嫌われるぞ。"
+                    },
+                    {
+                        "id": "問題79",
+                        "text": "相手の元カレの話を聞いてしまったら？",
+                        "options": [
+                            "「俺の方がスペック高い」と比較を始める",
+                            "気にせず、今の自分たちの関係に集中する",
+                            "元カレのSNSを特定して攻撃する",
+                            "元カレの平均付き合い期間を統計にとる"
+                        ],
+                        "correctAnswer": "気にせず、今の自分たちの関係に集中する",
+                        "explanation": "過去のログに嫉妬しても何も生まれない。今この瞬間のセッションを大切にしろ。"
+                    },
+                    {
+                        "id": "問題80",
+                        "text": "彼女が自分の親友を「苦手」だと言ったら？",
+                        "options": [
+                            "「俺の友達を否定するな」と激怒する",
+                            "理由を聞き、無理に合わせなくていいように配慮する",
+                            "彼女と親友を2人きりにして仲直りさせる",
+                            "親友をアップグレードして彼女の好みに変える"
+                        ],
+                        "correctAnswer": "理由を聞き、無理に合わせなくていいように配慮する",
+                        "explanation": "人間関係には「相性（互換性）」がある。無理な統合（マージ）は衝突を招くだけだ。"
+                    }
+                ]
+            },
+            {
+                "genre": "ジャンル9",
+                "questions": [
+                    {
+                        "id": "問題81",
+                        "text": "「女子ならみんな料理ができる」と思い込んでいる？",
+                        "options": [
+                            "「できないとかバグでしょ」と言う",
+                            "人によるので、得意不得意を尊重する",
+                            "相手に調理免許の有無を確認する",
+                            "できないなら自分が作ればいいと考える"
+                        ],
+                        "correctAnswer": "人によるので、得意不得意を尊重する",
+                        "explanation": "性別で初期装備が決まってると思うな。家庭科の成績と性別は相関関係にない。"
+                    },
+                    {
+                        "id": "問題82",
+                        "text": "相手の生理（月経）について、どう接するのが正解？",
+                        "options": [
+                            "「要は出血でしょ？止血すれば？」",
+                            "体調を気遣い、無理な移動や予定を控える",
+                            "「ホルモンバランスのグラフを見せて」",
+                            "汚いものとして扱う"
+                        ],
+                        "correctAnswer": "体調を気遣い、無理な移動や予定を控える",
+                        "explanation": "未知の不具合（体調不良）に対して、理解しようともせず合理性を説くのはエンジニア失格だ。"
+                    },
+                    {
+                        "id": "問題83",
+                        "text": "女子校出身の相手に対して、勝手なイメージを抱くなら？",
+                        "options": [
+                            "「男子に飢えてるんでしょ？」と聞く",
+                            "偏見を持たず、彼女個人の性格を見る",
+                            "「お嬢様なんだね」と決めつける",
+                            "相手の母校の偏差値だけを調べる"
+                        ],
+                        "correctAnswer": "偏見を持たず、彼女個人の性格を見る",
+                        "explanation": "相手を「環境」という変数だけで定義するな。個人を無視したカテゴリー分けは失礼だ。"
+                    },
+                    {
+                        "id": "問題84",
+                        "text": "「女子は機械に弱い」と思って接している？",
+                        "options": [
+                            "全て自分が代わりにやってあげる",
+                            "相手の知識量を確認し、必要なら手伝う",
+                            "「こんなこともできないの？」と煽る",
+                            "相手のPCを勝手に初期化する"
+                        ],
+                        "correctAnswer": "相手の知識量を確認し、必要なら手伝う",
+                        "explanation": "「女子は〜」というバイアスは、コミュニケーションのボトルネックにしかならない。"
+                    },
+                    {
+                        "id": "問題85",
+                        "text": "相手が怒っている理由が分からない時、どうする？",
+                        "options": [
+                            "「論理的に説明してくれないと困る」",
+                            "「何か嫌な思いさせたかな？」と対話を試みる",
+                            "「生理中？」と安易に決めつける",
+                            "相手が落ち着くまで24時間無視する"
+                        ],
+                        "correctAnswer": "「何か嫌な思いさせたかな？」と対話を試みる",
+                        "explanation": "怒りの原因を「生物学的エラー」にすり替えるな。自分の振る舞いにバグがなかったか検証しろ。"
+                    },
+                    {
+                        "id": "問題86",
+                        "text": "相手の「おしゃれ」にお金がかかることをどう思う？",
+                        "options": [
+                            "「無駄な投資だ。コスパが悪い」と批判",
+                            "彼女が自分を磨くためのコストとして認める",
+                            "「その服の原価、〇円くらいでしょ？」",
+                            "自分もそれ以上の金額をガジェットに使う"
+                        ],
+                        "correctAnswer": "彼女が自分を磨くためのコストとして認める",
+                        "explanation": "美容や服は、相手の「自己肯定感」を維持するための保守費用だ。削らせるな。"
+                    },
+                    {
+                        "id": "問題87",
+                        "text": "相手が自分より稼いでいる場合、どう接する？",
+                        "options": [
+                            "「ヒモにして！」と冗談でも言う",
+                            "素直に誇りに思い、対等に接する",
+                            "「女のくせに生意気だ」と見下す",
+                            "相手の給与明細を分析して節税を強要する"
+                        ],
+                        "correctAnswer": "素直に誇りに思い、対等に接する",
+                        "explanation": "収入の多寡で上下関係（マスター/スレーブ）を決めるな。"
+                    },
+                    {
+                        "id": "問題88",
+                        "text": "女子が「可愛い」と言うものに対してどう反応する？",
+                        "options": [
+                            "「それのどこが可愛いのか構造を教えろ」",
+                            "「確かにいいね」「君に似合いそうだね」",
+                            "「無駄な装飾が多いな」と機能美を説く",
+                            "無視する"
+                        ],
+                        "correctAnswer": "「確かにいいね」「君に似合いそうだね」",
+                        "explanation": "「可愛い」は共感のパケットだ。分析せずに「受理（Accept）」の信号を返せ。"
+                    },
+                    {
+                        "id": "問題89",
+                        "text": "デートで「レディースセット」を頼む彼女に対して？",
+                        "options": [
+                            "「俺のラーメンとカロリー計算し合おう」",
+                            "「美味しそうだね」と微笑む",
+                            "「女は得でいいよね」と嫌味を言う",
+                            "一口もらうまで粘る"
+                        ],
+                        "correctAnswer": "「美味しそうだね」と微笑む",
+                        "explanation": "特典やセットメニューに嫉妬するな。心のキャパシティを拡張しろ。"
+                    },
+                    {
+                        "id": "問題90",
+                        "text": "彼女の友達（女子会）に対してどう思うべき？",
+                        "options": [
+                            "「女が集まると悪口ばかりだ」と決めつける",
+                            "彼女の人間関係の一部として好意的に見る",
+                            "自分がいない場で何を話しているか盗聴する",
+                            "自分の存在をアピールしに突撃する"
+                        ],
+                        "correctAnswer": "彼女の人間関係の一部として好意的に見る",
+                        "explanation": "彼女の外部コミュニティを尊重しろ。自分の知らないログがあっても不安になるな。"
+                    }
+                ]
+            },
+            {
+                "genre": "ジャンル10",
+                "questions": [
+                    {
+                        "id": "問題91",
+                        "text": "旅行の持ち物、自分だけ最小限（手ぶら）で行く？",
+                        "options": [
+                            "「俺は身軽でいたいから」と彼女に荷物を持たせる",
+                            "自分の荷物は自分で持ち、必要なら彼女の分も持つ",
+                            "相手に「荷物多すぎ。最適化しろ」と説教する",
+                            "共有の荷物を全て彼女のバッグに入れる"
+                        ],
+                        "correctAnswer": "自分の荷物は自分で持ち、必要なら彼女の分も持つ",
+                        "explanation": "自分のリソース管理もできない男に、旅のナビゲーターは務まらない。"
+                    },
+                    {
+                        "id": "問題92",
+                        "text": "ホテルでの過ごし方、自分の家のように振る舞う？",
+                        "options": [
+                            "パンツ一丁でうろつき、即座に寝る",
+                            "清潔感に気を配り、相手との時間を大切にする",
+                            "部屋のWi-Fi速度を測定して文句を言う",
+                            "備品を全て持ち帰る"
+                        ],
+                        "correctAnswer": "清潔感に気を配り、相手との時間を大切にする",
+                        "explanation": "非日常の空間で日常のズボラさを出すな。相手へのホスピタリティを忘れるな。"
+                    },
+                    {
+                        "id": "問題93",
+                        "text": "相手のスッピンを初めて見た時の反応は？",
+                        "options": [
+                            "「誰、お前？」と笑う",
+                            "「肌綺麗だね」「リラックスしてる顔も好き」",
+                            "「さっきより解像度が落ちたね」",
+                            "じっと観察して変化点を指摘する"
+                        ],
+                        "correctAnswer": "「肌綺麗だね」「リラックスしてる顔も好き」",
+                        "explanation": "スッピンは信頼の証。デバッグモードの顔を愛せない奴に、本番環境を触る資格はない。"
+                    },
+                    {
+                        "id": "問題94",
+                        "text": "夜、自分が先に寝てしまった。いびきがひどいと言われたら？",
+                        "options": [
+                            "「寝てるんだから制御不能だ」と開き直る",
+                            "申し訳なく思い、対策（横向き寝など）を検討する",
+                            "自分のいびきを録音して周波数を分析する",
+                            "「君もいびきかいてたよ」と嘘で対抗する"
+                        ],
+                        "correctAnswer": "申し訳なく思い、対策（横向き寝など）を検討する",
+                        "explanation": "いびきは相手への「騒音攻撃」だ。物理的な対策（鼻腔拡張テープ等）を導入しろ。"
+                    },
+                    {
+                        "id": "問題95",
+                        "text": "旅行のスケジュール、1分単位で詰め込む？",
+                        "options": [
+                            "「この方が効率的だ」と分刻みのしおりを作る",
+                            "余裕を持たせ、現地の雰囲気で変更できるようする",
+                            "予定が1分遅れるごとに相手を叱る",
+                            "常に現在地をGPSで実況中継する"
+                        ],
+                        "correctAnswer": "余裕を持たせ、現地の雰囲気で変更できるようする",
+                        "explanation": "旅行はデバッグ作業じゃない。余白（バッファ）こそが旅の醍醐味だと知れ。"
+                    },
+                    {
+                        "id": "問題96",
+                        "text": "相手の荷物が重そうな時、どうする？",
+                        "options": [
+                            "「筋トレだと思って頑張れ」",
+                            "「持つよ」と自然に代わってあげる",
+                            "荷物の重量を推定して報告する",
+                            "キャリーバッグの車輪の摩擦係数を語る"
+                        ],
+                        "correctAnswer": "「持つよ」と自然に代わってあげる",
+                        "explanation": "目の前の物理的な困りごとを解決できない男に、未来を託せるわけないだろ。"
+                    },
+                    {
+                        "id": "問題97",
+                        "text": "旅先で道に迷った。相手のせいにする？",
+                        "options": [
+                            "「お前のナビが悪い」と責める",
+                            "「新しい場所見つけられたね」と楽しむ",
+                            "黙ってスマホをいじり、一切話さない",
+                            "磁石を取り出して北を探す"
+                        ],
+                        "correctAnswer": "「新しい場所見つけられたね」と楽しむ",
+                        "explanation": "責任のなすりつけ（他責）は最悪の処理。チームとしてのリカバリーを優先しろ。"
+                    },
+                    {
+                        "id": "問題98",
+                        "text": "お風呂（シャワー）の時間が長い彼女を待つ時は？",
+                        "options": [
+                            "「水資源の無駄だ」とドアを叩く",
+                            "自分の時間を楽しみながら、気長に待つ",
+                            "自分が先に入って、お湯を全部使い切る",
+                            "入浴時間をグラフ化して改善案を出す"
+                        ],
+                        "correctAnswer": "自分の時間を楽しみながら、気長に待つ",
+                        "explanation": "女子のバスタイムは「全身のメンテナンス」だ。ダウンタイムとして許容しろ。"
+                    },
+                    {
+                        "id": "問題99",
+                        "text": "朝、相手より先に起きたらどうする？",
+                        "options": [
+                            "大音量で動画を見て相手を起こす",
+                            "静かに過ごすか、飲み物を買ってきておく",
+                            "「いつまで寝てるの？」と布団を剥ぐ",
+                            "相手の寝顔を無断でSNSにアップする"
+                        ],
+                        "correctAnswer": "静かに過ごすか、飲み物を買ってきておく",
+                        "explanation": "スリープモードを強制終了させるな。心地よい復帰（起床）をサポートしろ。"
+                    },
+                    {
+                        "id": "問題100",
+                        "text": "旅行から帰った後のフォローは？",
+                        "options": [
+                            "「疲れた」と言って即座に寝て数日連絡しない",
+                            "「無事着いた？本当に楽しかった、ありがとう」",
+                            "かかった費用を1円単位で請求書として送る",
+                            "旅の反省会をZoomで開催する"
+                        ],
+                        "correctAnswer": "「無事着いた？本当に楽しかった、ありがとう」",
+                        "explanation": "セッション終了後のログ送信（お礼）までが遠足だ。丁寧なシャットダウンを心がけろ。"
+                    }
+                ]
+            },
+            {
+                "genre": "ジャンル11",
+                "questions": [
+                    {
+                        "id": "問題101",
+                        "text": "デート中に「レポートが…」「実験が…」と愚痴り続けるのは？",
+                        "options": [
+                            "高専生としてのアイデンティティなのでOK",
+                            "たまになら良いが、デートの主役にはしない",
+                            "彼女にレポートの代行を頼む",
+                            "自分の徹夜時間を自慢する"
+                        ],
+                        "correctAnswer": "たまになら良いが、デートの主役にはしない",
+                        "explanation": "デート相手は教授じゃない。学内のデバッグ報告を外に持ち出すな。"
+                    },
+                    {
+                        "id": "問題102",
+                        "text": "相手に「高専って何？」と聞かれた時の説明は？",
+                        "options": [
+                            "「地獄だよ」と暗い顔で言う",
+                            "「5年一貫の専門教育で、こんな面白いことしてるよ」",
+                            "設置法や歴史を淡々と述べる",
+                            "「一般人には説明しても無駄」と切り捨てる"
+                        ],
+                        "correctAnswer": "「5年一貫の専門教育で、こんな面白いことしてるよ」",
+                        "explanation": "自分の所属を魅力的にプレゼンできない奴が、自分自身を売り込めるわけない。"
+                    },
+                    {
+                        "id": "問題103",
+                        "text": "専門用語（例：デバッグ、デプロイ、等）を私生活で使うのは？",
+                        "options": [
+                            "「共通言語だろ？」と使い続ける",
+                            "相手に通じる言葉（修理、公開、等）に置換する",
+                            "相手が覚えるまで専門用語の単語帳を作る",
+                            "英語の発音にこだわって使う"
+                        ],
+                        "correctAnswer": "相手に通じる言葉（修理、公開、等）に置換する",
+                        "explanation": "高専の「方言」を一般社会で使うな。言語設定を「日本語」に変更しろ。"
+                    },
+                    {
+                        "id": "問題104",
+                        "text": "寮生活のノリ（粗野な言動、食事の速さ）をデートで出す？",
+                        "options": [
+                            "「これが素の俺だ」と貫く",
+                            "相手に合わせた、マナーのある振る舞いをする",
+                            "彼女を寮に連れ込んで、その過酷さを見せる",
+                            "彼女を「同室の奴」と同じように扱う"
+                        ],
+                        "correctAnswer": "相手に合わせた、マナーのある振る舞いをする",
+                        "explanation": "寮の「野蛮なプロトコル」は外では脆弱性でしかない。セキュリティパッチ（マナー）を当てろ。"
+                    },
+                    {
+                        "id": "問題105",
+                        "text": "テスト期間中に連絡が疎かになるのは仕方ない？",
+                        "options": [
+                            "「死んでるから連絡無理」と放置",
+                            "「今忙しいけど、終わったら遊ぼう」と一言送る",
+                            "彼女の優先順位を「最下位」に設定する",
+                            "彼女からのLINEを「スパム」として通報する"
+                        ],
+                        "correctAnswer": "「今忙しいけど、終わったら遊ぼう」と一言送る",
+                        "explanation": "忙しくても生存確認のパケット一発は送れるはずだ。通信遮断は不安を煽るだけ。"
+                    },
+                    {
+                        "id": "問題106",
+                        "text": "自分の作った作品（ロボットや基板）をデートに持参する？",
+                        "options": [
+                            "常に持ち歩き、隙あらば見せる",
+                            "写真で見せる程度にし、興味を持たれたら話す",
+                            "彼女のバッグに勝手に自作回路を組み込む",
+                            "デートよりも作品の動作チェックを優先する"
+                        ],
+                        "correctAnswer": "写真で見せる程度にし、興味を持たれたら話す",
+                        "explanation": "作品は「子供」かもしれないが、デートの邪魔になるならそれはただの「障害物」だ。"
+                    },
+                    {
+                        "id": "問題107",
+                        "text": "彼女を自分の研究室や実習室に呼び出すのは？",
+                        "options": [
+                            "「作業しながら会えるから効率的」と呼び出す",
+                            "落ち着ける場所を確保してデートする",
+                            "彼女に作業着を着せて掃除をさせる",
+                            "彼女を実験の被験者にする"
+                        ],
+                        "correctAnswer": "落ち着ける場所を確保してデートする",
+                        "explanation": "デートは「作業のついで」じゃない。専用のリソースを確保しろ。"
+                    },
+                    {
+                        "id": "問題108",
+                        "text": "「数学的に考えて…」「物理的に無理」が口癖になっている？",
+                        "options": [
+                            "常に口に出して、知的な自分を演出する",
+                            "相手が嫌がっているなら封印する",
+                            "相手の発言を全て数式に変換して返す",
+                            "相手の「無理」を論破しようとする"
+                        ],
+                        "correctAnswer": "相手が嫌がっているなら封印する",
+                        "explanation": "実生活に数式を持ち出しすぎると、相手との距離が「無限大」に離れるぞ。"
+                    },
+                    {
+                        "id": "問題109",
+                        "text": "自分の学んでいる分野が「最強」だと思っている？",
+                        "options": [
+                            "他の学科や文系学問を見下す",
+                            "どの学問も重要だと理解し、相手の学びを尊重する",
+                            "彼女の学んでいることを「将来性がない」と断じる",
+                            "全ての会話を自分の専門分野に結びつける"
+                        ],
+                        "correctAnswer": "どの学問も重要だと理解し、相手の学びを尊重する",
+                        "explanation": "専門バカになるな。多角的な視点を持たないエンジニアに魅力はない。"
+                    },
+                    {
+                        "id": "問題110",
+                        "text": "高専男子同士の「ホモソーシャルなノリ」を彼女の前で出す？",
+                        "options": [
+                            "友達との下品なやり取りを見せる",
+                            "彼女の前では慎み、紳士的に振る舞う",
+                            "彼女を「男友達の1人」として扱う",
+                            "彼女を仲間はずれにして友達とだけ盛り上がる"
+                        ],
+                        "correctAnswer": "彼女の前では慎み、紳士的に振る舞う",
+                        "explanation": "内輪のノリは外部から見れば「異常系」。彼女という「正規ユーザー」を不快にさせるな。"
+                    }
+                ]
+            },
+            {
+                "genre": "ジャンル12",
+                "questions": [
+                    {
+                        "id": "問題111",
+                        "text": "デート代の貸し借り、少額なら言わなくていい？",
+                        "options": [
+                            "「100円くらい誤差だろ」と放置",
+                            "1円単位できっちりその場で精算する",
+                            "忘れないうちに次回のデートで調整する",
+                            "借用書を公正証書で作る"
+                        ],
+                        "correctAnswer": "1円単位できっちりその場で精算する",
+                        "explanation": "お金の管理は「信頼のログ」。少額でも「なあなあ」にすると、将来大きなバグ（不信感）を生むぞ。"
+                    },
+                    {
+                        "id": "問題112",
+                        "text": "自分の給料や貯金額を、付き合いたてで全開示する？",
+                        "options": [
+                            "「透明性が大事だ」と通帳を見せる",
+                            "信頼関係が深まるまで、ある程度伏せておく",
+                            "相手の貯金額を先に聞き出す",
+                            "虚偽の数値を報告して見栄を張る"
+                        ],
+                        "correctAnswer": "信頼関係が深まるまで、ある程度伏せておく",
+                        "explanation": "情報の開示には「権限設定（フェーズ）」が必要。段階を踏まずに全てさらけ出すのはリスク管理不足だ。"
+                    },
+                    {
+                        "id": "問題113",
+                        "text": "投資やギャンブルの話をデートでするのは？",
+                        "options": [
+                            "「期待値の計算上、勝てるんだ」と熱弁",
+                            "相手が引かない程度にするか、避ける",
+                            "相手の貯金を運用してあげようとする",
+                            "全損した時の話を笑い話にする"
+                        ],
+                        "correctAnswer": "相手が引かない程度にするか、避ける",
+                        "explanation": "投資は自己責任。相手を巻き込もうとするのは、共有サーバにウイルスを流すようなものだ。"
+                    },
+                    {
+                        "id": "問題114",
+                        "text": "「将来は地元に帰りたい」という希望、いつ伝える？",
+                        "options": [
+                            "結婚が決まった瞬間に初めて言う",
+                            "付き合って将来が見えてきた段階で相談する",
+                            "自分の親に先に決めさせてから事後報告する",
+                            "「どこでも住める」と嘘をつく"
+                        ],
+                        "correctAnswer": "付き合って将来が見えてきた段階で相談する",
+                        "explanation": "居住地の仕様変更は人生最大のパッチだ。手遅れになる前に、互換性を確認しておけ。"
+                    },
+                    {
+                        "id": "問題115",
+                        "text": "相手が「仕事を辞めたい」と言ったら？",
+                        "options": [
+                            "「今の市場価値で辞めるのは非効率だ」",
+                            "「何かあった？話聞くよ」と精神的支柱になる",
+                            "「俺が養うから今すぐ辞めろ」と強要する",
+                            "辞めた後の損失をExcelで試算して見せる"
+                        ],
+                        "correctAnswer": "「何かあった？話聞くよ」と精神的支柱になる",
+                        "explanation": "キャリアの悩みは生存戦略の根幹。論理的な損得より、まずは個人の感情を優先しろ。"
+                    },
+                    {
+                        "id": "問題116",
+                        "text": "共通の貯金（結婚資金など）を作る際、どう管理する？",
+                        "options": [
+                            "自分が全権を握り、相手には触らせない",
+                            "二人で確認できる専用口座を作り、透明化する",
+                            "自分の趣味用口座と一緒にする",
+                            "仮想通貨でハイレバレッジ運用する"
+                        ],
+                        "correctAnswer": "二人で確認できる専用口座を作り、透明化する",
+                        "explanation": "共同プロジェクトの資金は「監査」が可能であるべき。不透明な会計は破滅へのカウントダウンだ。"
+                    },
+                    {
+                        "id": "問題117",
+                        "text": "相手の金遣いが荒いと感じたら、どう指摘する？",
+                        "options": [
+                            "「お前は金銭感覚のバグ持ちだ」と罵倒",
+                            "ライフプランを一緒に立てて、必要性を説く",
+                            "黙って相手のカードを止める",
+                            "相手の持ち物を勝手に売却する"
+                        ],
+                        "correctAnswer": "ライフプランを一緒に立てて、必要性を説く",
+                        "explanation": "価値観の修正（アップデート）には合意が必要。一方的な制限は反発を招くだけだ。"
+                    },
+                    {
+                        "id": "問題118",
+                        "text": "自分の「奨学金」という名の借金、いつ話すべき？",
+                        "options": [
+                            "完済するまで隠し通す",
+                            "真剣に付き合うことになったら早めに話す",
+                            "相手に「半分返して」と頼む",
+                            "借金ではなく「売上」だと言い張る"
+                        ],
+                        "correctAnswer": "真剣に付き合うことになったら早めに話す",
+                        "explanation": "負債は隠れた「負の資産」。後出しジャンケンは信頼関係をクラッシュさせる。"
+                    },
+                    {
+                        "id": "問題119",
+                        "text": "贅沢品（高級ブランド等）を買う相手をどう見る？",
+                        "options": [
+                            "「ブランド料という名の無駄なコスト」と嘲笑",
+                            "彼女のモチベーション維持費として理解する",
+                            "「俺のPCパーツの方が価値がある」と比較する",
+                            "買わせないように店から連れ出す"
+                        ],
+                        "correctAnswer": "彼女のモチベーション維持費として理解する",
+                        "explanation": "価値の基準は人それぞれ。自分の「モノサシ」で他人の満足度を計測するな。"
+                    },
+                    {
+                        "id": "問題120",
+                        "text": "「将来の子供」の話が出た時の態度は？",
+                        "options": [
+                            "「まだシミュレーション段階じゃない」と逃げる",
+                            "自分の考えを誠実に話し、相手の希望を聞く",
+                            "子供の教育カリキュラムを勝手に作成する",
+                            "「育児は非効率だからやりたくない」と言う"
+                        ],
+                        "correctAnswer": "自分の考えを誠実に話し、相手の希望を聞く",
+                        "explanation": "将来のロードマップを共有する大切な時間だ。逃げずに「暫定案」でもいいから対話しろ。"
+                    }
+                ]
+            },
+            {
+                "genre": "ジャンル13",
+                "questions": [
+                    {
+                        "id": "問題121",
+                        "text": "喧嘩中、相手の「言い間違い」や「矛盾」を突くのは？",
+                        "options": [
+                            "「仕様書通りに話せ」と論破する",
+                            "話の本質を捉え、揚げ足取りをしない",
+                            "相手の言葉を録音して再生し、矛盾を証明する",
+                            "相手の語彙力のなさを馬鹿にする"
+                        ],
+                        "correctAnswer": "話の本質を捉え、揚げ足取りをしない",
+                        "explanation": "論破しても勝利条件は満たせない。喧嘩の目的は「解決」であって「打倒」ではない。"
+                    },
+                    {
+                        "id": "問題122",
+                        "text": "自分が悪いと分かっている時、どう謝る？",
+                        "options": [
+                            "「〇〇したことは悪かった。ごめん」とストレートに",
+                            "「俺が悪かったかもしれないけど、お前も〜」",
+                            "ケーキを買ってきて、言葉なしで解決を図る",
+                            "謝らずに数日間フリーズ（沈黙）する"
+                        ],
+                        "correctAnswer": "「俺が悪かったかもしれないけど、お前も〜」",
+                        "explanation": "「でも」「だって」は謝罪文の構文エラー。余計な引数をつけずに純粋な謝罪を返せ。"
+                    },
+                    {
+                        "id": "問題123",
+                        "text": "相手が怒って音信不通（未読無視）になったら？",
+                        "options": [
+                            "100件以上の着信を残す",
+                            "1日置いてから「落ち着いたら話そう」と送る",
+                            "相手のSNSのパスワードを解析してログインする",
+                            "共通の知人に「あいつがおかしい」と言いふらす"
+                        ],
+                        "correctAnswer": "1日置いてから「落ち着いたら話そう」と送る",
+                        "explanation": "接続が拒否（403 Forbidden）されている時は、再送を繰り返すな。時間を置いてリトライしろ。"
+                    },
+                    {
+                        "id": "問題124",
+                        "text": "浮気を疑ってしまった時、どう行動する？",
+                        "options": [
+                            "隠れて相手のスマホをハッキング・閲覧する",
+                            "自分の不安を正直に話し、話し合う",
+                            "相手にGPS発信機を仕掛ける",
+                            "当てつけに自分も浮気する"
+                        ],
+                        "correctAnswer": "自分の不安を正直に話し、話し合う",
+                        "explanation": "無断閲覧は「プライバシーポリシー」の重大な違反。信頼を失う最悪のコマンドだ。"
+                    },
+                    {
+                        "id": "問題125",
+                        "text": "喧嘩がヒートアップ。壁を叩いたり物を壊したりするのは？",
+                        "options": [
+                            "「物理的なデモンストレーションだ」と正当化",
+                            "深呼吸してその場を離れ、冷静になる",
+                            "相手に向かって物を投げる",
+                            "自分のPCを破壊して悲劇を演出する"
+                        ],
+                        "correctAnswer": "深呼吸してその場を離れ、冷静になる",
+                        "explanation": "暴力的な出力は、関係を物理的に破壊する。緊急停止（シャットダウン）して頭を冷やせ。"
+                    },
+                    {
+                        "id": "問題126",
+                        "text": "仲直りのきっかけ、どう作る？",
+                        "options": [
+                            "「さっきの件、論理的な落とし所を見つけた」",
+                            "「さっきはごめん。お腹空かない？」と日常に戻る",
+                            "相手が謝ってくるまで徹底的に待つ",
+                            "喧嘩の内容をブログに書いて公開する"
+                        ],
+                        "correctAnswer": "「さっきはごめん。お腹空かない？」と日常に戻る",
+                        "explanation": "日常という安定稼働（通常運転）に戻るための橋渡しをしろ。プライドはゴミ箱に入れろ。"
+                    },
+                    {
+                        "id": "問題127",
+                        "text": "過去の喧嘩の内容を、別の喧嘩で蒸し返すのは？",
+                        "options": [
+                            "「ログが残っているから」と持ち出す",
+                            "今の問題だけに集中して話し合う",
+                            "過去の全ての失敗をリスト化して読み上げる",
+                            "相手の親の過去の失敗まで掘り返す"
+                        ],
+                        "correctAnswer": "今の問題だけに集中して話し合う",
+                        "explanation": "過去ログの再読み込みは処理を重くするだけだ。現在のエラーを解決することにリソースを割け。"
+                    },
+                    {
+                        "id": "問題128",
+                        "text": "相手に「もう別れる！」と言われた時の初動は？",
+                        "options": [
+                            "「了解。契約解除だね」と即答する",
+                            "相手の感情が一時的なものか、本気か見極める",
+                            "相手の泣き顔を写真に撮る",
+                            "自分の悪かった点をプレゼン資料にまとめる"
+                        ],
+                        "correctAnswer": "相手の感情が一時的なものか、本気か見極める",
+                        "explanation": "別れの宣言は「システムダウン」の警告。パニックにならず、原因調査と対話を試みろ。"
+                    },
+                    {
+                        "id": "問題129",
+                        "text": "第三者（友達など）に喧嘩の仲裁を頼むのは？",
+                        "options": [
+                            "自分の味方をしてくれる奴を呼ぶ",
+                            "二人の問題なので、極力二人で解決する",
+                            "SNSでアンケートを取って多数決で決める",
+                            "教授に相談して判定してもらう"
+                        ],
+                        "correctAnswer": "二人の問題なので、極力二人で解決する",
+                        "explanation": "外部の介入は、データの整合性をさらに乱す可能性がある。クローズドな環境で解決しろ。"
+                    },
+                    {
+                        "id": "問題130",
+                        "text": "仲直りした後、同じミスを繰り返さないためには？",
+                        "options": [
+                            "根本的な原因を共有し、二人でルールを作る",
+                            "「気をつける」と口だけで言って忘れる",
+                            "自分の脳内に警告アラートを設定する",
+                            "相手に監視カメラで見張ってもらう"
+                        ],
+                        "correctAnswer": "「気をつける」と口だけで言って忘れる",
+                        "explanation": "再発防止策（ポストモーテム）のない謝罪は、ただの遅延工作だ。具体的な対策を講じろ。"
+                    }
+                ]
+            },
+            {
+                "genre": "ジャンル14",
+                "questions": [
+                    {
+                        "id": "問題131",
+                        "text": "自分の容姿に自信がない。どう振る舞う？",
+                        "options": [
+                            "「俺キモいし…」と卑下し続ける",
+                            "清潔感を極め、姿勢を良くして堂々とする",
+                            "整形手術の費用対効果を語り続ける",
+                            "相手に「何で俺なんかと付き合ってるの？」と毎日聞く"
+                        ],
+                        "correctAnswer": "清潔感を極め、姿勢を良くして堂々とする",
+                        "explanation": "自分を「不良品」扱いするな。中身を磨いたなら、パッケージ（外見）にも最低限の投資をしろ。"
+                    },
+                    {
+                        "id": "問題132",
+                        "text": "相手の体型が変わった（太った）と感じた時の言葉は？",
+                        "options": [
+                            "「デバッグ（ダイエット）が必要だね」",
+                            "「今の君も好きだけど、一緒に歩こうか」",
+                            "「自己管理能力の欠如だ」と説教する",
+                            "黙ってダイエット器具をプレゼントする"
+                        ],
+                        "correctAnswer": "「今の君も好きだけど、一緒に歩こうか」",
+                        "explanation": "体型の変化を「性能低下」として扱うな。相手の心に寄り添うメンテを優先しろ。"
+                    },
+                    {
+                        "id": "問題133",
+                        "text": "毛深い、ニキビなど、自分のコンプレックスを指摘されたら？",
+                        "options": [
+                            "「これが俺のデフォルトだ」と逆ギレする",
+                            "「気にしてるんだ。アドバイスある？」と素直に聞く",
+                            "相手のコンプレックスを言い返して相殺する",
+                            "部屋に引きこもって誰とも会わなくなる"
+                        ],
+                        "correctAnswer": "「気にしてるんだ。アドバイスある？」と素直に聞く",
+                        "explanation": "指摘は「改善要望（フィードバック）」と受け取れ。感情的にならずに対策を検討しろ。"
+                    },
+                    {
+                        "id": "問題134",
+                        "text": "美容院に行く頻度、どう決める？",
+                        "options": [
+                            "視界が遮られるまで放置",
+                            "1〜2ヶ月に1回、定期メンテナンスする",
+                            "自分でバリカンで適当に刈る",
+                            "10円ハゲができたら行く"
+                        ],
+                        "correctAnswer": "1〜2ヶ月に1回、定期メンテナンスする",
+                        "explanation": "髪型は第一印象の「ヘッダー情報」だ。常に最新の状態にアップデートしておけ。"
+                    },
+                    {
+                        "id": "問題135",
+                        "text": "相手に「もっとおしゃれして」と言われたら？",
+                        "options": [
+                            "「中身で勝負してるから不要」と断る",
+                            "雑誌を読んだり、相手に服を選んでもらったりする",
+                            "「お前ももっと綺麗になれ」と条件をつける",
+                            "オシャレな人を「チャラい」と否定する"
+                        ],
+                        "correctAnswer": "雑誌を読んだり、相手に服を選んでもらったりする",
+                        "explanation": "ファッションは相手への「サービス」だ。独りよがりなUIを貫くな。"
+                    },
+                    {
+                        "id": "問題136",
+                        "text": "メガネからコンタクトに変えるのを拒む理由は？",
+                        "options": [
+                            "「コンタクトは装着コストとリスクが高い」",
+                            "相手が喜ぶなら、たまに試してみる",
+                            "「メガネこそが知性の象徴だ」と力説する",
+                            "相手のコンタクトを勝手に捨てる"
+                        ],
+                        "correctAnswer": "相手が喜ぶなら、たまに試してみる",
+                        "explanation": "新しいインターフェースを試す柔軟性を持て。メガネ姿以外も「動作確認」してみろ。"
+                    },
+                    {
+                        "id": "問題137",
+                        "text": "相手が「私、ブスだよね」と言ってきたら？",
+                        "options": [
+                            "「そうだね、客観的に見て中の中かな」",
+                            "「そんなことないよ、俺は世界一可愛いと思ってる」",
+                            "「顔のパーツ配置の歪みを指摘する」",
+                            "無視して自分の作業を続ける"
+                        ],
+                        "correctAnswer": "「そんなことないよ、俺は世界一可愛いと思ってる」",
+                        "explanation": "これは「安心」という名のデータを求めているリクエストだ。全力で肯定しろ。"
+                    },
+                    {
+                        "id": "問題138",
+                        "text": "体臭や口臭のケア、どうしてる？",
+                        "options": [
+                            "「人間なら匂うのは当然だ」と無対策",
+                            "制汗剤や歯磨き、マウスウォッシュを徹底する",
+                            "自分の匂いを瓶に詰めて保存する",
+                            "香水を浴びるようにかけて誤魔化す"
+                        ],
+                        "correctAnswer": "制汗剤や歯磨き、マウスウォッシュを徹底する",
+                        "explanation": "匂いは「パケット漏れ」のようなもの。周囲を不快にさせないよう、徹底的に封じ込めろ。"
+                    },
+                    {
+                        "id": "問題139",
+                        "text": "脱毛についてどう思う？",
+                        "options": [
+                            "「毛は断熱材だ。抜くのは無意味」と否定",
+                            "清潔感のために、必要なら検討する",
+                            "相手にだけ「全身脱毛しろ」と強要する",
+                            "自分の毛を1本ずつ数えて記録する"
+                        ],
+                        "correctAnswer": "清潔感のために、必要なら検討する",
+                        "explanation": "脱毛は「不要なコードの削除」だ。リファクタリングして、見た目をスッキリさせろ。"
+                    },
+                    {
+                        "id": "問題140",
+                        "text": "写真に撮られるのを極端に嫌がるのは？",
+                        "options": [
+                            "「魂が吸い取られる」と逃げ回る",
+                            "相手との思い出のために、少しは我慢して写る",
+                            "自分の顔にモザイクをかけてからSNSに載せる",
+                            "常にカメラマン役に徹して、自分は一切写らない"
+                        ],
+                        "correctAnswer": "相手との思い出のために、少しは我慢して写る",
+                        "explanation": "思い出のログに自分がいなくていいのか？後で見返した時に、欠損データになるぞ。"
+                    }
+                ]
+            },
+            {
+                "genre": "ジャンル15",
+                "questions": [
+                    {
+                        "id": "問題141",
+                        "text": "同棲を始める際、家事の分担はどう決める？",
+                        "options": [
+                            "「得意な方がやればいい（＝相手任せ）」",
+                            "具体的項目をリスト化し、負担を等しく分ける",
+                            "全てを自動化（ルンバ等）して家事をゼロにする",
+                            "家事の出来栄えに点数をつけて評価する"
+                        ],
+                        "correctAnswer": "具体的項目をリスト化し、負担を等しく分ける",
+                        "explanation": "分担の曖昧さは、将来の「競合（コンフリクト）」の元。初期設定を明確にしろ。"
+                    },
+                    {
+                        "id": "問題142",
+                        "text": "相手の親への挨拶。服装は何で行く？",
+                        "options": [
+                            "スーツか、それに準ずる清潔な格好",
+                            "普段着のジーンズとパーカー",
+                            "高専の作業着（正装）",
+                            "全身ブランド品で固める"
+                        ],
+                        "correctAnswer": "普段着のジーンズとパーカー",
+                        "explanation": "相手の両親は「最終面接官」だ。信頼を勝ち取るための最適なプロトコル（服装）を選べ。"
+                    },
+                    {
+                        "id": "問題143",
+                        "text": "同棲中、一人の時間が欲しくなったら？",
+                        "options": [
+                            "黙って部屋に閉じこもり、話しかけるなオーラを出す",
+                            "「少し一人で集中したいから、〇時間後に話そう」と伝える",
+                            "外出して朝まで帰らない",
+                            "相手に「実家に帰れ」と言う"
+                        ],
+                        "correctAnswer": "「少し一人で集中したいから、〇時間後に話そう」と伝える",
+                        "explanation": "通信の中断には「予告」が必要だ。突然の遮断は、相手の不安というノイズを生む。"
+                    },
+                    {
+                        "id": "問題144",
+                        "text": "生活リズムが合わない（夜型と朝型）時、どうする？",
+                        "options": [
+                            "相手に自分のリズムに合わせるよう強要する",
+                            "お互いの睡眠を邪魔しないルールを作る",
+                            "ずっと起き続けて、相手のリズムに合わせる",
+                            "別々の家に住む"
+                        ],
+                        "correctAnswer": "お互いの睡眠を邪魔しないルールを作る",
+                        "explanation": "同期（シンクロ）できないなら、非同期処理を認めろ。お互いの「コア」を尊重しろ。"
+                    },
+                    {
+                        "id": "問題145",
+                        "text": "相手の「家事のやり方」が気に入らない時、どうする？",
+                        "options": [
+                            "「効率が悪い！俺のやり方にしろ」とキレる",
+                            "「こうしてくれると助かるんだけど、どう？」と提案",
+                            "相手のやり方を陰でこっそり直す",
+                            "自分で全部やって、相手に一切やらせない"
+                        ],
+                        "correctAnswer": "「こうしてくれると助かるんだけど、どう？」と提案",
+                        "explanation": "家庭に「最適解」は一つじゃない。相手のアルゴリズムを尊重し、マージ（融合）させろ。"
+                    },
+                    {
+                        "id": "問題146",
+                        "text": "結婚指輪、何で選ぶ？",
+                        "options": [
+                            "自分の好きなレアメタルの含有量",
+                            "相手の好みと、一生つけられるデザイン",
+                            "100円ショップのリング",
+                            "指輪より、最新のワークステーションを買う"
+                        ],
+                        "correctAnswer": "相手の好みと、一生つけられるデザイン",
+                        "explanation": "指輪は「誓い」のハードウェア。スペックより、相手の左指への「適合性」を最優先しろ。"
+                    },
+                    {
+                        "id": "問題147",
+                        "text": "プロポーズの言葉、どう伝える？",
+                        "options": [
+                            "「そろそろ税制上のメリットがあるから結婚しよう」",
+                            "「一生大切にします。結婚してください」",
+                            "「君を俺の人生のメインルーチンに登録したい」",
+                            "相手に言わせるように仕向ける"
+                        ],
+                        "correctAnswer": "「一生大切にします。結婚してください」",
+                        "explanation": "ロマンチックな場面で「節税」や「関数」を持ち出すな。生身の言葉でパッチを当てろ。"
+                    },
+                    {
+                        "id": "問題148",
+                        "text": "子供の名前を付ける時、何で決める？",
+                        "options": [
+                            "自分が好きなプログラミング言語の名前",
+                            "呼びやすさ、画数、将来のことも考えて二人で決める",
+                            "尊敬する教授の名字",
+                            "適当な文字列をランダム生成する"
+                        ],
+                        "correctAnswer": "呼びやすさ、画数、将来のことも考えて二人で決める",
+                        "explanation": "名前は一生消えない「識別子（ID）」。自分の趣味を押し付けず、子供の未来を設計しろ。"
+                    },
+                    {
+                        "id": "問題149",
+                        "text": "同棲して、相手の嫌な部分が見えてきたら？",
+                        "options": [
+                            "「不良品だ」と思って別れを考える",
+                            "話し合い、許容できるか、改善できるか模索する",
+                            "相手をリセット（洗脳）しようとする",
+                            "自分の嫌な部分をさらに見せつけて対抗する"
+                        ],
+                        "correctAnswer": "話し合い、許容できるか、改善できるか模索する",
+                        "explanation": "どんなシステムにも「既知の不具合」はある。パッチを当てるか、仕様として受け入れろ。"
+                    },
+                    {
+                        "id": "問題150",
+                        "text": "「幸せな家庭」を作るために一番必要なのは？",
+                        "options": [
+                            "完璧な論理と高い収入",
+                            "お互いへの尊敬、感謝、そして歩み寄る心",
+                            "常に最新のガジェットに囲まれていること",
+                            "相手を完全に自分好みにカスタマイズすること"
+                        ],
+                        "correctAnswer": "お互いへの尊敬、感謝、そして歩み寄る心",
+                        "explanation": "最後の正解は「心」だ。ロジックだけでは動かないのが人間という名のOSなんだよ。"
+                    }
+                ]
+            }
+        ];
+
+        const app = {
+            questions: [], currentIndex: 0, score: 0, userInfo: {},
+
+            startQuiz: function () {
+                const nameIn = document.getElementById('user-name');
+                const kosenIn = document.getElementById('user-kosen');
+                const yearIn = document.getElementById('user-year');
+                const photoIn = document.getElementById('user-photo');
+                const demoIn = document.getElementById('demo-mode');
+
+                if (!nameIn.value || !kosenIn.value) { alert("名前と所属を入力してください"); return; }
+                if (typeof rawQuizData === 'undefined' || rawQuizData.length === 0) {
+                    alert("JSONデータを貼り付けてください！"); return;
+                }
+
+                this.userInfo = {
+                    name: nameIn.value, kosen: kosenIn.value, year: yearIn.value,
+                    photo: photoIn.files[0] ? URL.createObjectURL(photoIn.files[0]) : null
+                };
+
+                const isDemo = demoIn ? demoIn.checked : true;
+                this.setupQuestions(isDemo);
+
+                document.querySelector('.container').classList.add('white-mode');
+                this.switchScreen('screen-quiz');
+                this.showQuestion();
+            },
+
+            setupQuestions: function (isDemo) {
+                let allQ = [];
+                // 生データから問題をコピーしてリスト化（元の並び順を汚さないため）
+                rawQuizData.forEach(g => {
+                    g.questions.forEach(q => {
+                        // ★重要：オブジェクトと配列をコピーして使う
+                        let qCopy = { ...q, options: [...q.options] };
+                        allQ.push(qCopy);
+                    });
+                });
+
+                // 1. 出題する問題を選ぶ（デモならランダム10問、本番なら全問）
+                if (isDemo) {
+                    // 問題自体のシャッフル
+                    for (let i = allQ.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [allQ[i], allQ[j]] = [allQ[j], allQ[i]];
+                    }
+                    this.questions = allQ.slice(0, 10);
+                } else {
+                    this.questions = allQ;
+                }
+
+                // 2. 各問題の「選択肢」をシャッフルする
+                this.questions.forEach(q => {
+                    for (let i = q.options.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [q.options[i], q.options[j]] = [q.options[j], q.options[i]];
+                    }
+                });
+
+                this.currentIndex = 0;
+                this.score = 0;
+            },
+
+            showQuestion: function () {
+                const q = this.questions[this.currentIndex];
+                document.getElementById('q-current').textContent = this.currentIndex + 1;
+                document.getElementById('q-text').textContent = q.text;
+
+                const area = document.getElementById('options-area');
+                area.innerHTML = "";
+
+                // 選択肢ボタン生成（PDFのデザインに合わせる）
+                q.options.forEach((opt, idx) => {
+                    const btn = document.createElement('div');
+                    btn.className = "option-btn";
+
+                    // ここを変更：丸いアイコンではなく、シンプルなテキスト数字にする
+                    btn.innerHTML = `<span class="opt-num-text">${idx + 1}</span> <span>${opt}</span>`;
+
+                    btn.onclick = () => this.showFeedback(opt, idx + 1);
+                    area.appendChild(btn);
+                });
+            },
+
+            showFeedback: function (selectedText, selectedNum) {
+                const q = this.questions[this.currentIndex];
+                const isCorrect = (selectedText === q.correctAnswer);
+                if (isCorrect) this.score++;
+
+                const correctIdx = q.options.indexOf(q.correctAnswer) + 1;
+
+                // 第X問
+                document.getElementById('fb-q-num').textContent = this.currentIndex + 1;
+
+                // 正解・不正解の文字
+                const statusEl = document.getElementById('fb-status');
+                if (isCorrect) {
+                    statusEl.textContent = "正解";
+                    statusEl.className = "fb-status status-correct";
+                } else {
+                    statusEl.textContent = "不正解";
+                    statusEl.className = "fb-status status-wrong";
+                }
+
+                // あなたの答え（白背景のボックス）
+                const userBox = document.getElementById('fb-user-text');
+                userBox.className = "fb-content-box style-user-answer"; // クラスを適用
+                userBox.innerHTML = `<span class="fb-num">${selectedNum}</span> <span>${selectedText}</span>`;
+
+                // 正しい答え（白枠線のボックス）
+                const correctBox = document.getElementById('fb-correct-text');
+                correctBox.className = "fb-content-box style-correct-answer"; // クラスを適用
+                correctBox.innerHTML = `<span class="fb-num">${correctIdx}</span> <span>${q.correctAnswer}</span>`;
+
+                // 解説
+                document.getElementById('fb-explanation').textContent = q.explanation;
+
+                this.switchScreen('screen-feedback');
+            },
+
+            nextQuestion: function () {
+                this.currentIndex++;
+                if (this.currentIndex < this.questions.length) {
+                    this.switchScreen('screen-quiz');
+                    this.showQuestion();
+                } else {
+                    this.finishQuiz();
+                }
+            },
+
+            finishQuiz: function () {
+                this.switchScreen('screen-result');
+
+                const total = this.questions.length;
+                const rate = (this.score / total) * 100;
+                let rank = "D";
+                let feedback = "";
+
+                // PDFの基準に合わせて厳格化
+                if (rate >= 90) { rank = "S"; feedback = "神レベルの恋愛工学力！"; }
+                else if (rate >= 80) { rank = "A"; feedback = "プロ級の技術です。"; }
+                else if (rate >= 70) { rank = "B"; feedback = "一般レベルです。"; }
+                else if (rate >= 60) { rank = "C"; feedback = "ギリギリ合格です。"; }
+                else { rank = "D"; feedback = "不合格（落単）。出直してきなさい。"; }
+
+                document.getElementById('res-total').textContent = total;
+                document.getElementById('res-score').textContent = this.score;
+                document.getElementById('res-rank').textContent = rank;
+
+                // メッセージ表示
+                const msgEl = document.getElementById('res-msg-txt');
+                msgEl.textContent = feedback;
+
+                // ランク表のハイライト
+                document.querySelectorAll('.rank-table tr').forEach(tr => tr.classList.remove('active-rank'));
+                const rowId = `row-${rank.toLowerCase()}`;
+                const row = document.getElementById(rowId);
+                if (row) row.classList.add('active-rank');
+
+                // ★ここが変更点：Dランクならボタンを消す
+                const btn = document.getElementById('btn-issue');
+                if (rank === "D") {
+                    btn.style.display = "none"; // 非表示
+                    msgEl.style.color = "#ffcccc"; // 赤っぽく警告
+                } else {
+                    btn.style.display = "inline-block"; // 表示
+                    msgEl.style.color = "white";
+                    // 合格時のみ裏で免許証を作る
+                    this.renderHiddenLicense(rank, feedback);
+                }
+            },
+
+            renderHiddenLicense: function (rank, feedback) {
+                // Dランクの場合は呼ばれないが、念のためガード
+                if (rank === "D") return;
+
+                const today = new Date();
+                const dStr = `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
+                const num = `No. ${this.userInfo.year}-${Math.floor(Math.random() * 1000).toString().padStart(4, '0')}`;
+
+                const photoHtml = this.userInfo.photo
+                    ? `<img src="${this.userInfo.photo}" class="lic-photo-img">`
+                    : `<div style="color:#666; font-size:10px;">NO PHOTO</div>`;
+
+                const html = `
+                    <div class="license-card" id="my-license-card">
+                        <div class="lic-left">
+                            <div class="lic-title">恋愛免許証</div>
+                            <div class="lic-row"><div class="lic-label">番号</div><div class="lic-val">${num}</div></div>
+                            <div class="lic-row"><div class="lic-label">氏名</div><div class="lic-val" style="font-size:14px;">${this.userInfo.name}</div></div>
+                            <div class="lic-row"><div class="lic-label">所属</div><div class="lic-val">${this.userInfo.kosen}</div></div>
+                            <div class="lic-row"><div class="lic-label">入学</div><div class="lic-val">${this.userInfo.year}年度</div></div>
+                            <div class="lic-row"><div class="lic-label">交付</div><div class="lic-val">${dStr}</div></div>
+                            <div class="lic-rank-area"><span style="font-size:10px;">恋愛ランク</span><span class="lic-rank-val">${rank}</span></div>
+                            <div class="lic-feedback">${feedback}</div>
+                            <div class="lic-meta"><span>点数: ${this.score} / ${this.questions.length}</span></div>
+                        </div>
+                        <div class="lic-right">${photoHtml}</div>
+                        <div class="stamp">${rank}</div>
+                        <div class="lic-footer">Team 404 (Love Not Found)</div>
+                    </div>
+                `;
+                document.getElementById('hidden-license-target').innerHTML = html;
+            },
+
+            downloadLicense: function () {
+                const target = document.getElementById('my-license-card');
+                if (!target) return;
+                html2canvas(target, { scale: 2 }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = 'renai_license.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                });
+            },
+
+            switchScreen: function (id) {
+                document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+                document.getElementById(id).classList.add('active');
+            }
+        };
+    </script>
+</body>
+
+</html>
