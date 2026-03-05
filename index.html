@@ -2852,6 +2852,9 @@
             },
 
             downloadLicense: function () {
+                alert("現在、ハイクオリティな「恋愛免許証」の自動生成システムを絶賛開発中です!\n（近日アップデート予定。お楽しみに!!）");
+                // 以前のHTML化による暫定版コード(画像合成システムに以降のためコメントアウト)
+                /*
                 const target = document.getElementById('my-license-card');
                 if (!target) return;
                 html2canvas(target, { scale: 2 }).then(canvas => {
@@ -2859,7 +2862,8 @@
                     link.download = 'renai_license.png';
                     link.href = canvas.toDataURL('image/png');
                     link.click();
-                });
+                }); 
+                */
             },
 
             switchScreen: function (id) {
