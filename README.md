@@ -25,6 +25,6 @@
 * **Font**: [Zen Kurenaido](https://fonts.google.com/specimen/Zen+Kurenaido) (Google Fonts)
 * **Deployment**: Vercel (Static Site Hosting)
 
-## 📄 ライセンス (License)
+## ライセンス (License)
 
 本プロジェクトは [MIT License](LICENSE) の下で公開されています。
